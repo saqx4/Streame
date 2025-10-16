@@ -19,7 +19,7 @@ export default function AdUnit({
       const w = window as any;
       w.adsbygoogle = w.adsbygoogle || [];
       w.adsbygoogle.push({});
-    } catch (e) {
+    } catch {
       // ignore errors; ads lib may not be loaded in dev or blocked
     }
   }, []);
