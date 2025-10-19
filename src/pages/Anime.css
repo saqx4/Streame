@@ -1,0 +1,95 @@
+.anime {
+  min-height: 100vh;
+  padding-top: 80px;
+  background-color: var(--bg-primary);
+}
+
+.anime-header {
+  padding: 2rem 2rem 1rem 2rem;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    transparent 100%
+  );
+}
+
+.anime-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -1px;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.anime-content {
+  padding: 1rem 2rem 3rem 2rem;
+}
+
+.anime-error {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.anime-error h2 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.anime-error p {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.retry-button {
+  padding: 12px 32px;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .anime {
+    padding-top: 60px;
+  }
+
+  .anime-header {
+    padding: 1.5rem 1rem 0.5rem 1rem;
+  }
+
+  .anime-title {
+    font-size: 1.6rem;
+  }
+
+  .anime-content {
+    padding: 1rem 1rem 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .anime-title {
+    font-size: 1.5rem;
+  }
+}
