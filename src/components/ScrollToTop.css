@@ -1,0 +1,100 @@
+.floating-scroll-top {
+  position: fixed !important;
+  bottom: 32px !important;
+  right: 32px !important;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e50914 0%, #b8070e 100%);
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(229, 9, 20, 0.5), 0 4px 15px rgba(0, 0, 0, 0.6);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 9999 !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: visible !important;
+  isolation: isolate;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-scroll-top:hover {
+  transform: translateY(-8px) scale(1.1);
+  box-shadow: 0 12px 40px rgba(229, 9, 20, 0.7), 0 8px 20px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, #ff1a1a 0%, #e50914 100%);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.floating-scroll-top svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+  opacity: 1 !important;
+  pointer-events: none;
+}
+
+/* Force white stroke for nested elements inside lucide SVG */
+.floating-scroll-top svg * {
+  stroke: #ffffff !important;
+  color: #ffffff !important;
+}
+
+/* Fallback glyph in case SVG fails to render */
+.floating-scroll-top-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  font-size: 18px;
+  line-height: 1;
+  z-index: 0; /* SVG remains on top if visible */
+  pointer-events: none;
+}
+
+/* Neutralize global button pseudo-element so it doesn't cover the icon */
+.floating-scroll-top::before,
+.floating-scroll-top::after {
+  content: none !important;
+  display: none !important;
+}
+
+.floating-scroll-top:active {
+  transform: translateY(-4px) scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .floating-scroll-top {
+    bottom: 24px;
+    right: 24px;
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-scroll-top {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+}
