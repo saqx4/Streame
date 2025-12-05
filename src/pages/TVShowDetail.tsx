@@ -23,6 +23,7 @@ const TVShowDetail: React.FC = () => {
   const [cast, setCast] = useState<any[]>([]);
   const [videos, setVideos] = useState<any[]>([]);
   const [similarShows, setSimilarShows] = useState<TVShow[]>([]);
+  const [lastWatched, setLastWatched] = useState<{ season: number; episode: number } | null>(null);
   const { user } = useAuth();
   const [inWatchlist, setInWatchlist] = useState(false);
   const [checkingWatchlist, setCheckingWatchlist] = useState(false);
@@ -71,14 +72,56 @@ const TVShowDetail: React.FC = () => {
       checkWatchlistStatus();
     } else {
       setInWatchlist(false);
+      setLastWatched(null);
     }
   }, [user, tvShow]);
+
+  // Load last watched episode for logged-in user (local-only; no DB dependency)
+  useEffect(() => {
+    if (!user || !tvShow) {
+      setLastWatched(null);
+      return;
+    }
+    try {
+      const key = `lastWatched:${user.id}:tv:${tvShow.id}`;
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (
+          typeof parsed?.season === 'number' &&
+          typeof parsed?.episode === 'number'
+        ) {
+          setLastWatched({ season: parsed.season, episode: parsed.episode });
+        }
+      } else {
+        setLastWatched(null);
+      }
+    } catch (err) {
+      console.warn('Failed to load last watched episode', err);
+      setLastWatched(null);
+    }
+  }, [user, tvShow]);
+
+  const persistLastWatched = (episode: number) => {
+    if (!user || !tvShow) return;
+    const data = { season: selectedSeason, episode };
+    setLastWatched(data);
+    try {
+      const key = `lastWatched:${user.id}:tv:${tvShow.id}`;
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch (err) {
+      console.warn('Failed to save last watched episode', err);
+    }
+  };
 
   const handlePlayEpisode = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
 
+    if (tvShow) {
+      persistLastWatched(1);
+    }
     navigate(`/watch/tv/${tvShow?.id}/season/1/episode/1`);
   };
 
@@ -89,6 +132,7 @@ const TVShowDetail: React.FC = () => {
 
   const handleEpisodeChange = (episode: number) => {
     setSelectedEpisode(episode);
+    persistLastWatched(episode);
     if (tvShow) {
       navigate(`/watch/tv/${tvShow.id}/season/${selectedSeason}/episode/${episode}`);
     }
@@ -370,9 +414,17 @@ const TVShowDetail: React.FC = () => {
               {!episodesLoading && episodes.map((episode) => (
                 <div
                   key={episode.id}
-                  className={`episode-card ${selectedEpisode === episode.episode_number ? 'active' : ''}`}
+                  className={`episode-card ${selectedEpisode === episode.episode_number ? 'active' : ''} ${
+                    user && lastWatched?.season === selectedSeason && lastWatched?.episode === episode.episode_number ? 'last-watched' : ''
+                  }`}
                   onClick={() => handleEpisodeChange(episode.episode_number)}
                 >
+                  {user && lastWatched?.season === selectedSeason && lastWatched?.episode === episode.episode_number && (
+                    <span className="last-watched-badge" aria-label="Last watched episode">
+                      <span className="last-watched-dot" aria-hidden="true"></span>
+                      Last watched
+                    </span>
+                  )}
                   <div className="episode-still">
                     <img
                       src={episode.still_path ? getImageUrl(episode.still_path, 'w500') : getPosterUrl(tvShow.poster_path, 'w500')}
