@@ -10,6 +10,7 @@ import './TVShowDetail.css';
 import '../components/Hero.css';
 import { useAuth } from '../context/AuthContext';
 import { userMediaService } from '../services/userMedia';
+import { userProgressService } from '../services/userProgress';
 
 const TVShowDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,30 +77,47 @@ const TVShowDetail: React.FC = () => {
     }
   }, [user, tvShow]);
 
-  // Load last watched episode for logged-in user (local-only; no DB dependency)
+  // Load last watched episode for logged-in user (persisted in Supabase, fallback to local storage)
   useEffect(() => {
-    if (!user || !tvShow) {
-      setLastWatched(null);
-      return;
-    }
-    try {
+    const loadLastWatched = async () => {
+      if (!user || !tvShow) {
+        setLastWatched(null);
+        return;
+      }
       const key = `lastWatched:${user.id}:tv:${tvShow.id}`;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (
-          typeof parsed?.season === 'number' &&
-          typeof parsed?.episode === 'number'
-        ) {
-          setLastWatched({ season: parsed.season, episode: parsed.episode });
+      try {
+        // Try remote first
+        const remote = await userProgressService.get(user.id, tvShow.id);
+        if (remote) {
+          setLastWatched(remote);
+          localStorage.setItem(key, JSON.stringify(remote));
+          return;
         }
-      } else {
+      } catch (err) {
+        console.warn('Failed to load remote last watched episode', err);
+      }
+
+      // Fallback to local cache
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (
+            typeof parsed?.season === 'number' &&
+            typeof parsed?.episode === 'number'
+          ) {
+            setLastWatched({ season: parsed.season, episode: parsed.episode });
+          }
+        } else {
+          setLastWatched(null);
+        }
+      } catch (err) {
+        console.warn('Failed to load last watched episode', err);
         setLastWatched(null);
       }
-    } catch (err) {
-      console.warn('Failed to load last watched episode', err);
-      setLastWatched(null);
-    }
+    };
+
+    loadLastWatched();
   }, [user, tvShow]);
 
   const persistLastWatched = (episode: number) => {
@@ -112,6 +130,10 @@ const TVShowDetail: React.FC = () => {
     } catch (err) {
       console.warn('Failed to save last watched episode', err);
     }
+    // Fire-and-forget remote persistence
+    userProgressService.set(user.id, tvShow.id, data).catch((err: unknown) => {
+      console.warn('Failed to persist last watched remotely', err);
+    });
   };
 
   const handlePlayEpisode = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -194,10 +216,10 @@ const TVShowDetail: React.FC = () => {
     try {
       setCheckingWatchlist(true);
       const items = await userMediaService.list(user.id, 'watchlist');
-      const isInList = items.some(item => item.tmdb_id === tvShow.id);
+      const isInList = items.some((item: { tmdb_id: number }) => item.tmdb_id === tvShow.id);
       console.log('Watchlist check:', { userId: user.id, tvShowId: tvShow.id, isInList, totalItems: items.length });
       setInWatchlist(isInList);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to check watchlist:', err);
     } finally {
       setCheckingWatchlist(false);
@@ -227,7 +249,7 @@ const TVShowDetail: React.FC = () => {
         setInWatchlist(true);
         console.log('Added successfully');
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to toggle watchlist:', err);
       alert('Failed to update watchlist. Please check console for details.');
     } finally {

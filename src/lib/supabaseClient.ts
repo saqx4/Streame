@@ -15,7 +15,7 @@ if (supabaseUrl && supabaseAnonKey) {
 const mock = {
   auth: {
     async getUser() { return { data: { user: null } } as any; },
-    onAuthStateChange() { return { data: { subscription: { unsubscribe(){} } } } as any; },
+    onAuthStateChange() { return { data: { subscription: { unsubscribe() {} } } } as any; },
     async signInWithOtp() { return { error: { message: 'Supabase not configured' } } as any; },
     async signInWithPassword() { return { error: { message: 'Supabase not configured' } } as any; },
     async signUp() { return { error: { message: 'Supabase not configured' } } as any; },
@@ -26,7 +26,11 @@ const mock = {
   },
   from() {
     return {
-      select: () => ({ data: [], error: { message: 'Supabase not configured' } }),
+      select: () => ({
+        data: [],
+        error: { message: 'Supabase not configured' },
+        maybeSingle: async () => ({ data: null, error: { message: 'Supabase not configured' } }),
+      }),
       insert: () => ({ error: { message: 'Supabase not configured' } }),
       upsert: () => ({ error: { message: 'Supabase not configured' } }),
       delete: () => ({ error: { message: 'Supabase not configured' } }),
@@ -37,3 +41,4 @@ const mock = {
 } as unknown as SupabaseClient;
 
 export const supabase = (client ?? mock);
+export const isSupabaseEnabled = !!client;

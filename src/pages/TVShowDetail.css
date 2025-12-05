@@ -459,8 +459,8 @@
 .episodes-rail-track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(280px, 360px);
-  gap: 14px;
+  grid-auto-columns: minmax(260px, 340px);
+  gap: 12px;
   overflow-x: auto;
   padding: 4px 2px 8px;
   scroll-behavior: smooth;
@@ -484,7 +484,7 @@
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  min-height: 260px;
+  min-height: 230px;
 }
 
 .episode-card:hover {
@@ -583,7 +583,7 @@
 }
 
 .episode-meta {
-  padding: 12px 14px 14px;
+  padding: 12px 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -621,7 +621,7 @@
 .episode-overview {
   margin: 0;
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   line-height: 1.5;
   max-height: 4.2em;
   overflow: hidden;
@@ -929,6 +929,42 @@
 }
 
 /* Responsive Design */
+@media (max-width: 900px) {
+  .tv-show-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .tv-show-hero-content {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 0 1rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .episodes-rail-track {
+    grid-auto-columns: minmax(220px, 280px);
+    gap: 10px;
+    padding: 2px 2px 6px;
+  }
+
+  .episode-meta {
+    padding: 12px 10px 12px;
+  }
+
+  .episode-title {
+    font-size: 0.95rem;
+  }
+
+  .episode-overview {
+    font-size: 0.84rem;
+  }
+}
+
+.episode-card:last-child {
+  margin-right: 2px;
+}
+
 @media (max-width: 768px) {
   .tv-show-hero {
     height: auto;

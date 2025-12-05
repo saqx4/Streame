@@ -4,6 +4,8 @@ import { Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { tmdbService, getStreamingUrl } from '../services/tmdb';
 import type { TVShowDetails } from '../types';
 import './PlayerPage.css';
+import { useAuth } from '../context/AuthContext';
+import { userProgressService } from '../services/userProgress';
 
 type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5';
 
@@ -19,6 +21,7 @@ const PlayerEpisode: React.FC = () => {
   const [episodes, setEpisodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerKey>('server1');
+  const { user } = useAuth();
 
   const seasonNum = Number(seasonNumber || 1);
   const episodeNum = Number(episodeNumber || 1);
@@ -64,6 +67,21 @@ const PlayerEpisode: React.FC = () => {
   const goToEpisode = (epNum: number) => {
     navigate(`/watch/tv/${tvNumericId}/season/${seasonNum}/episode/${epNum}`, { replace: true });
   };
+
+  // Persist progress when user is logged in (cross-device) and also cache locally
+  useEffect(() => {
+    if (!user || !tvShow) return;
+    const data = { season: seasonNum, episode: episodeNum };
+    const key = `lastWatched:${user.id}:tv:${tvNumericId}`;
+    try {
+      localStorage.setItem(key, JSON.stringify(data));
+    } catch {
+      // ignore localStorage errors
+    }
+    userProgressService.set(user.id, tvNumericId, data).catch((err: unknown) => {
+      console.warn('Failed to persist progress from player page', err);
+    });
+  }, [user, tvShow, seasonNum, episodeNum, tvNumericId]);
 
   if (loading || !tvShow) {
     return (

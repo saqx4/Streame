@@ -112,21 +112,55 @@ create unique index if not exists ux_user_media_user_tmdb_list
   on public.user_media (user_id, tmdb_id, list_type);
 
 -- ============================================
--- 6. GRANT PERMISSIONS
+-- 6. USER_PROGRESS TABLE (episode progress)
+-- ============================================
+create table if not exists public.user_progress (
+  id bigserial primary key,
+  user_id uuid not null references public.profiles(id) on delete cascade,
+  tmdb_id bigint not null,
+  season integer not null,
+  episode integer not null,
+  updated_at timestamp with time zone default now(),
+  unique (user_id, tmdb_id)
+);
+
+-- Enable RLS on user_progress
+alter table public.user_progress enable row level security;
+
+-- user_progress RLS policies
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='user_progress' and policyname='user_progress readable by owner') then
+    create policy "user_progress readable by owner" on public.user_progress for select using (auth.uid() = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='user_progress' and policyname='user_progress upsert by owner') then
+    create policy "user_progress upsert by owner" on public.user_progress for insert with check (auth.uid() = user_id);
+    create policy "user_progress update by owner" on public.user_progress for update using (auth.uid() = user_id);
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='user_progress' and policyname='user_progress delete by owner') then
+    create policy "user_progress delete by owner" on public.user_progress for delete using (auth.uid() = user_id);
+  end if;
+end $$;
+
+create index if not exists idx_user_progress_user_tmdb on public.user_progress (user_id, tmdb_id);
+
+-- ============================================
+-- 7. GRANT PERMISSIONS
 -- ============================================
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on public.profiles to anon, authenticated;
 grant select, insert, update, delete on public.user_media to anon, authenticated;
+grant select, insert, update, delete on public.user_progress to anon, authenticated;
 grant usage, select on sequence user_media_id_seq to anon, authenticated;
 
 -- ============================================
--- 7. CLEAN UP OLD FAVORITE ENTRIES (optional)
+-- 8. CLEAN UP OLD FAVORITE ENTRIES (optional)
 -- ============================================
 -- If you had favorites before, this removes them:
 -- delete from public.user_media where list_type = 'favorite';
 
 -- ============================================
--- 8. RELOAD POSTGREST SCHEMA CACHE
+-- 9. RELOAD POSTGREST SCHEMA CACHE
 -- ============================================
 notify pgrst, 'reload schema';
 
