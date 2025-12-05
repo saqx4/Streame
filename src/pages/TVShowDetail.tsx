@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Star, Calendar, Tv, Play, Bookmark, X, Download } from 'lucide-react';
+import { Star, Calendar, Tv, Play, Bookmark, X } from 'lucide-react';
 import type { TVShowDetails, TVShow } from '../types';
 import { tmdbService, getBackdropUrl, getPosterUrl, getImageUrl } from '../services/tmdb';
 import CastSection from '../components/CastSection';
@@ -476,16 +476,6 @@ const TVShowDetail: React.FC = () => {
                       <span className="episode-airdate">
                         {formatAirDate(episode.air_date)}
                       </span>
-                      <a
-                        className="episode-download"
-                        href={`https://dl.vidsrc.vip/tv/${tvShow.id}/${selectedSeason}/${episode.episode_number}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Download size={14} />
-                        Download
-                      </a>
                     </div>
                   </div>
                 </div>
