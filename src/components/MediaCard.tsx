@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Star, Calendar } from 'lucide-react';
 import type { Movie, TVShow } from '../types';
@@ -51,4 +51,6 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, type }) => {
   );
 };
 
-export default MediaCard;
+MediaCard.displayName = 'MediaCard';
+
+export default memo(MediaCard);

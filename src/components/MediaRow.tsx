@@ -1,8 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { memo, useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Movie, TVShow } from '../types';
 import MediaCard from './MediaCard';
+import LazyRender from './LazyRender';
 import './MediaRow.css';
 
 interface MediaRowProps {
@@ -106,63 +107,65 @@ const MediaRow: React.FC<MediaRowProps> = ({ items, type, title, loading = false
   }
 
   return (
-    <div className="media-row">
-      {title && (
-        <div className="media-row-header">
-          <h2 className="media-row-title">{title}</h2>
-          {category && (
-            <button className="view-all-btn" onClick={handleViewAll}>
-              View All
-              <ArrowRight />
+    <LazyRender minHeight={320} rootMargin="200px">
+      <div className="media-row">
+        {title && (
+          <div className="media-row-header">
+            <h2 className="media-row-title">{title}</h2>
+            {category && (
+              <button className="view-all-btn" onClick={handleViewAll}>
+                View All
+                <ArrowRight />
+              </button>
+            )}
+          </div>
+        )}
+        
+        <div className="media-row-container">
+          {canScrollLeft && (
+            <button 
+              className="media-row-arrow media-row-arrow-left"
+              onClick={() => scroll('left')}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft size={24} />
+            </button>
+          )}
+          
+          <div 
+            className="media-row-content"
+            ref={scrollContainerRef}
+            onScroll={checkScrollButtons}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            role="region"
+            aria-label={title || 'Media carousel'}
+          >
+            {items.map((item, index) => (
+              <div key={item.id} className="media-row-item">
+                {showNumbers && (
+                  <div className="media-number">
+                    {index + 1}
+                  </div>
+                )}
+                <MediaCard media={item} type={type} />
+              </div>
+            ))}
+          </div>
+          
+          {canScrollRight && (
+            <button 
+              className="media-row-arrow media-row-arrow-right"
+              onClick={() => scroll('right')}
+              aria-label="Scroll right"
+            >
+              <ChevronRight size={24} />
             </button>
           )}
         </div>
-      )}
-      
-      <div className="media-row-container">
-        {canScrollLeft && (
-          <button 
-            className="media-row-arrow media-row-arrow-left"
-            onClick={() => scroll('left')}
-            aria-label="Scroll left"
-          >
-            <ChevronLeft size={24} />
-          </button>
-        )}
-        
-        <div 
-          className="media-row-content"
-          ref={scrollContainerRef}
-          onScroll={checkScrollButtons}
-          onKeyDown={handleKeyDown}
-          tabIndex={0}
-          role="region"
-          aria-label={title || 'Media carousel'}
-        >
-          {items.map((item, index) => (
-            <div key={item.id} className="media-row-item">
-              {showNumbers && (
-                <div className="media-number">
-                  {index + 1}
-                </div>
-              )}
-              <MediaCard media={item} type={type} />
-            </div>
-          ))}
-        </div>
-        
-        {canScrollRight && (
-          <button 
-            className="media-row-arrow media-row-arrow-right"
-            onClick={() => scroll('right')}
-            aria-label="Scroll right"
-          >
-            <ChevronRight size={24} />
-          </button>
-        )}
       </div>
-    </div>
+    </LazyRender>
   );
 };
 
-export default MediaRow;
+export default memo(MediaRow);

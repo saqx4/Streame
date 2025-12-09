@@ -254,7 +254,7 @@ export const getProfileUrl = (path: string | null, size: string = 'w185'): strin
 export const getStreamingUrl = (
   tmdbId: number,
   type: 'movie' | 'tv',
-  server: 'server1' | 'server2' | 'server3' | 'server4' | 'server5',
+  server: 'server1' | 'server2' | 'server3' | 'server4' | 'server5' | 'server6',
   season?: number,
   episode?: number
 ): string => {
@@ -288,6 +288,12 @@ export const getStreamingUrl = (
         return `https://player.videasy.net/movie/${tmdbId}`;
       } else {
         return `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`;
+      }
+    case 'server6':
+      if (type === 'movie') {
+        return `https://www.vidking.net/embed/movie/${tmdbId}?color=e50914`;
+      } else {
+        return `https://www.vidking.net/embed/tv/${tmdbId}/${season}/${episode}?color=e50914`;
       }
     default:
       return '';

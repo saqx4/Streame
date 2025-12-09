@@ -5,7 +5,7 @@ import { tmdbService, getStreamingUrl } from '../services/tmdb';
 import type { MovieDetails } from '../types';
 import './PlayerPage.css';
 
-type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5';
+type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5' | 'server6';
 
 const PlayerMovie: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,7 +84,7 @@ const PlayerMovie: React.FC = () => {
           <span className="status-text">Available</span>
         </div>
         <div className="server-grid">
-          {(['server1', 'server2', 'server3', 'server4', 'server5'] as ServerKey[]).map((serverKey, idx) => (
+          {(['server1', 'server2', 'server3', 'server4', 'server5', 'server6'] as ServerKey[]).map((serverKey, idx) => (
             <button
               key={serverKey}
               className={`server-pill ${selectedServer === serverKey ? 'active' : ''}`}

@@ -7,7 +7,7 @@ import './PlayerPage.css';
 import { useAuth } from '../context/AuthContext';
 import { userProgressService } from '../services/userProgress';
 
-type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5';
+type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5' | 'server6';
 
 const PlayerEpisode: React.FC = () => {
   const { tvId, seasonNumber, episodeNumber } = useParams<{
@@ -148,7 +148,7 @@ const PlayerEpisode: React.FC = () => {
           <span className="status-text">Available</span>
         </div>
         <div className="server-grid">
-          {(['server1', 'server2', 'server3', 'server4', 'server5'] as ServerKey[]).map((serverKey, idx) => (
+          {(['server1', 'server2', 'server3', 'server4', 'server5', 'server6'] as ServerKey[]).map((serverKey, idx) => (
             <button
               key={serverKey}
               className={`server-pill ${selectedServer === serverKey ? 'active' : ''}`}
