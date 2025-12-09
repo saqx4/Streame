@@ -71,22 +71,22 @@ const Home: React.FC = () => {
           .slice(0, 5);
         setHeroItems(heroContent);
 
-        setTrendingMovies(trendingMoviesResponse.results.slice(0, 20));
-        setTrendingTVShows(trendingTVResponse.results.slice(0, 20));
-        setPopularMovies(popularMoviesResponse.results.slice(0, 20));
-        setPopularTVShows(popularTVResponse.results.slice(0, 20));
-        setTopRatedMovies(topRatedMoviesResponse.results.slice(0, 20));
-        setTopRatedTVShows(topRatedTVResponse.results.slice(0, 20));
+        setTrendingMovies(trendingMoviesResponse.results.slice(0, 12));
+        setTrendingTVShows(trendingTVResponse.results.slice(0, 12));
+        setPopularMovies(popularMoviesResponse.results.slice(0, 12));
+        setPopularTVShows(popularTVResponse.results.slice(0, 12));
+        setTopRatedMovies(topRatedMoviesResponse.results.slice(0, 12));
+        setTopRatedTVShows(topRatedTVResponse.results.slice(0, 12));
         
         // Set genre-specific movies
-        setActionMovies(actionMoviesResponse.results.slice(0, 20));
-        setComedyMovies(comedyMoviesResponse.results.slice(0, 20));
-        setDramaMovies(dramaMoviesResponse.results.slice(0, 20));
-        setHorrorMovies(horrorMoviesResponse.results.slice(0, 20));
-        setRomanceMovies(romanceMoviesResponse.results.slice(0, 20));
-        setSciFiMovies(sciFiMoviesResponse.results.slice(0, 20));
-        setDocumentaries(documentariesResponse.results.slice(0, 20));
-        setAnimationMovies(animationMoviesResponse.results.slice(0, 20));
+        setActionMovies(actionMoviesResponse.results.slice(0, 12));
+        setComedyMovies(comedyMoviesResponse.results.slice(0, 12));
+        setDramaMovies(dramaMoviesResponse.results.slice(0, 12));
+        setHorrorMovies(horrorMoviesResponse.results.slice(0, 12));
+        setRomanceMovies(romanceMoviesResponse.results.slice(0, 12));
+        setSciFiMovies(sciFiMoviesResponse.results.slice(0, 12));
+        setDocumentaries(documentariesResponse.results.slice(0, 12));
+        setAnimationMovies(animationMoviesResponse.results.slice(0, 12));
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load content. Please try again later.');

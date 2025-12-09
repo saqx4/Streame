@@ -23,9 +23,13 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, type }) => {
           src={getPosterUrl(media.poster_path)}
           alt={title}
           loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          width={342}
+          height={513}
           onError={(e) => {
             const target = e.target as HTMLImageElement;
-            target.src = 'https://via.placeholder.com/500x750/333333/ffffff?text=No+Image';
+            target.src = 'https://via.placeholder.com/342x513/1a1a1a/ffffff?text=No+Image';
           }}
         />
         <div className="media-card-overlay">

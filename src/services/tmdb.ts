@@ -240,8 +240,8 @@ export const getBackdropUrl = (path: string | null, size: string = 'w1280'): str
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 };
 
-export const getPosterUrl = (path: string | null, size: string = 'w500'): string => {
-  if (!path) return 'https://via.placeholder.com/500x750/333333/ffffff?text=No+Poster';
+export const getPosterUrl = (path: string | null, size: string = 'w342'): string => {
+  if (!path) return 'https://via.placeholder.com/342x513/1a1a1a/ffffff?text=No+Poster';
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 };
 
