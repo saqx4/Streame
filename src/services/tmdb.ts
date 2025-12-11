@@ -313,6 +313,60 @@ export const getStreamingUrl = (
       } else {
         return `https://www.vidking.net/embed/tv/${tmdbId}/${season}/${episode}?color=e50914`;
       }
+    case 'server7': {
+      // VidLink (JW player)
+      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${
+        type === 'tv' ? `/${season}/${episode}` : ''
+      }`;
+      return `${common}?player=jw&primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false`;
+    }
+    case 'server8': {
+      // VidLink alt
+      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${
+        type === 'tv' ? `/${season}/${episode}` : ''
+      }`;
+      return `${common}?primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&autoplay=false`;
+    }
+    case 'server9':
+      return type === 'movie'
+        ? `https://embed.su/embed/movie/${tmdbId}`
+        : `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`;
+    case 'server10':
+      return type === 'movie'
+        ? `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`
+        : `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+    case 'server11':
+      return type === 'movie'
+        ? `https://filmku.stream/embed/${tmdbId}`
+        : `https://filmku.stream/embed/series?tmdb=${tmdbId}&sea=${season}&epi=${episode}`;
+    case 'server12':
+      return type === 'movie'
+        ? `https://www.nontongo.win/embed/movie/${tmdbId}`
+        : `https://www.nontongo.win/embed/tv/${tmdbId}/${season}/${episode}`;
+    case 'server13':
+      return type === 'movie'
+        ? `https://autoembed.co/movie/tmdb/${tmdbId}`
+        : `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`;
+    case 'server14':
+      return type === 'movie'
+        ? `https://player.autoembed.cc/embed/movie/${tmdbId}`
+        : `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`;
+    case 'server15':
+      return type === 'movie'
+        ? `https://vidsrc.cc/v2/embed/movie/${tmdbId}?autoPlay=false`
+        : `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}?autoPlay=false`;
+    case 'server16':
+      return type === 'movie'
+        ? `https://vidsrc.cc/v3/embed/movie/${tmdbId}?autoPlay=false`
+        : `https://vidsrc.cc/v3/embed/tv/${tmdbId}/${season}/${episode}?autoPlay=false`;
+    case 'server17':
+      return type === 'movie'
+        ? `https://vidsrc.icu/embed/movie/${tmdbId}`
+        : `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`;
+    case 'server18':
+      return type === 'movie'
+        ? `https://moviesapi.club/movie/${tmdbId}`
+        : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
     default:
       return '';
   }

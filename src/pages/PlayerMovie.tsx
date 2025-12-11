@@ -5,7 +5,46 @@ import { tmdbService, getStreamingUrl } from '../services/tmdb';
 import type { MovieDetails } from '../types';
 import './PlayerPage.css';
 
-type ServerKey = 'server1' | 'server2' | 'server3' | 'server4' | 'server5' | 'server6';
+type ServerKey =
+  | 'server1'
+  | 'server2'
+  | 'server3'
+  | 'server4'
+  | 'server5'
+  | 'server6'
+  | 'server7'
+  | 'server8'
+  | 'server9'
+  | 'server10'
+  | 'server11'
+  | 'server12'
+  | 'server13'
+  | 'server14'
+  | 'server15'
+  | 'server16'
+  | 'server17'
+  | 'server18';
+
+const serverOptions: { key: ServerKey; label: string }[] = [
+  { key: 'server1', label: 'Vidsrc.xyz' },
+  { key: 'server2', label: 'Vidsrc.to' },
+  { key: 'server3', label: 'Vidsrc-embed.ru' },
+  { key: 'server4', label: '2Embed.cc' },
+  { key: 'server5', label: 'Videasy' },
+  { key: 'server6', label: 'Vidking' },
+  { key: 'server7', label: 'VidLink (JW)' },
+  { key: 'server8', label: 'VidLink' },
+  { key: 'server9', label: 'Embed.su' },
+  { key: 'server10', label: 'Multiembed' },
+  { key: 'server11', label: 'Filmku' },
+  { key: 'server12', label: 'Nontongo' },
+  { key: 'server13', label: 'AutoEmbed' },
+  { key: 'server14', label: 'Player.Autoembed' },
+  { key: 'server15', label: 'Vidsrc.cc v2' },
+  { key: 'server16', label: 'Vidsrc.cc v3' },
+  { key: 'server17', label: 'Vidsrc.icu' },
+  { key: 'server18', label: 'MoviesAPI' },
+];
 
 const PlayerMovie: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -84,11 +123,11 @@ const PlayerMovie: React.FC = () => {
           <span className="status-text">Available</span>
         </div>
         <div className="server-grid">
-          {(['server1', 'server2', 'server3', 'server4', 'server5', 'server6'] as ServerKey[]).map((serverKey, idx) => (
+          {serverOptions.map((option, idx) => (
             <button
-              key={serverKey}
-              className={`server-pill ${selectedServer === serverKey ? 'active' : ''}`}
-              onClick={() => setSelectedServer(serverKey)}
+              key={option.key}
+              className={`server-pill ${selectedServer === option.key ? 'active' : ''}`}
+              onClick={() => setSelectedServer(option.key)}
             >
               <div>
                 <div className="server-label">Server {idx + 1}</div>
