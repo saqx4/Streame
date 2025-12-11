@@ -254,7 +254,25 @@ export const getProfileUrl = (path: string | null, size: string = 'w185'): strin
 export const getStreamingUrl = (
   tmdbId: number,
   type: 'movie' | 'tv',
-  server: 'server1' | 'server2' | 'server3' | 'server4' | 'server5' | 'server6',
+  server:
+    | 'server1'
+    | 'server2'
+    | 'server3'
+    | 'server4'
+    | 'server5'
+    | 'server6'
+    | 'server7'
+    | 'server8'
+    | 'server9'
+    | 'server10'
+    | 'server11'
+    | 'server12'
+    | 'server13'
+    | 'server14'
+    | 'server15'
+    | 'server16'
+    | 'server17'
+    | 'server18',
   season?: number,
   episode?: number
 ): string => {
