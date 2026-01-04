@@ -208,7 +208,7 @@ export const tmdbService = {
       year?: number;
     }
   ): Promise<TMDBResponse<Movie>> => {
-    const params: any = {
+    const params: Record<string, string | number> = {
       page,
       sort_by: filters?.sortBy || 'popularity.desc',
     };
@@ -230,7 +230,7 @@ export const tmdbService = {
       year?: number;
     }
   ): Promise<TMDBResponse<TVShow>> => {
-    const params: any = {
+    const params: Record<string, string | number> = {
       page,
       sort_by: filters?.sortBy || 'popularity.desc',
     };
@@ -284,14 +284,13 @@ export const getStreamingUrl = (
     | 'server12'
     | 'server13'
     | 'server14'
-    | 'server15'
-    | 'server16'
     | 'server17'
     | 'server18'
-    | 'server21'
     | 'server26'
     | 'server27'
-    | 'server28',
+    | 'server28'
+    | 'server29'
+    | 'server30',
   season?: number,
   episode?: number,
   startAt?: number
@@ -377,14 +376,6 @@ export const getStreamingUrl = (
       return type === 'movie'
         ? `https://player.autoembed.cc/embed/movie/${tmdbId}`
         : `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`;
-    case 'server15':
-      return type === 'movie'
-        ? `https://vidsrc.cc/v2/embed/movie/${tmdbId}?autoPlay=false`
-        : `https://vidsrc.cc/v2/embed/tv/${tmdbId}/${season}/${episode}?autoPlay=false`;
-    case 'server16':
-      return type === 'movie'
-        ? `https://vidsrc.cc/v3/embed/movie/${tmdbId}?autoPlay=false`
-        : `https://vidsrc.cc/v3/embed/tv/${tmdbId}/${season}/${episode}?autoPlay=false`;
     case 'server17':
       return type === 'movie'
         ? `https://vidsrc.icu/embed/movie/${tmdbId}`
@@ -393,10 +384,6 @@ export const getStreamingUrl = (
       return type === 'movie'
         ? `https://moviesapi.club/movie/${tmdbId}`
         : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
-    case 'server21':
-      return type === 'movie'
-        ? `https://vidsrc.me/embed/movie/${tmdbId}`
-        : `https://vidsrc.me/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server26':
       return type === 'movie'
         ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`
@@ -416,6 +403,14 @@ export const getStreamingUrl = (
       return type === 'movie'
         ? `https://www.embedsoap.com/embed/movie/?id=${tmdbId}`
         : `https://www.embedsoap.com/embed/tv/?id=${tmdbId}&s=${season}&e=${episode}`;
+    case 'server29':
+      return type === 'movie'
+        ? `https://111movies.com/movie/${tmdbId}`
+        : `https://111movies.com/tv/${tmdbId}/${season}/${episode}`;
+    case 'server30':
+      return type === 'movie'
+        ? `https://vidfast.pro/movie/${tmdbId}`
+        : `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}`;
     default:
       return '';
   }

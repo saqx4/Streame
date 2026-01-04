@@ -23,14 +23,13 @@ type ServerKey =
   | 'server12'
   | 'server13'
   | 'server14'
-  | 'server15'
-  | 'server16'
   | 'server17'
   | 'server18'
-  | 'server21'
   | 'server26'
   | 'server27'
-  | 'server28';
+  | 'server28'
+  | 'server29'
+  | 'server30';
 
 const serverOptions: { key: ServerKey; label: string }[] = [
   // Servers with postMessage support (resumable) - RECOMMENDED
@@ -39,12 +38,9 @@ const serverOptions: { key: ServerKey; label: string }[] = [
   { key: 'server27', label: '⭐ Vidlink.pro - Resumable' },
   // Other servers
   { key: 'server6', label: '⭐ Vidking - Resumable' },
-  { key: 'server16', label: 'Vidsrc.cc v3' },
-  { key: 'server15', label: 'Vidsrc.cc v2' },
   { key: 'server1', label: 'Vidsrc.xyz' },
   { key: 'server2', label: 'Vidsrc.to' },
   { key: 'server17', label: 'Vidsrc.icu' },
-  { key: 'server21', label: 'Vidsrc.me' },
   { key: 'server3', label: 'Vidsrc-embed.ru' },
   { key: 'server10', label: 'Multiembed' },
   { key: 'server13', label: 'AutoEmbed' },
@@ -57,7 +53,15 @@ const serverOptions: { key: ServerKey; label: string }[] = [
   { key: 'server5', label: 'Videasy' },
   { key: 'server26', label: 'Smashystream' },
   { key: 'server28', label: 'Embedsoap' },
+  { key: 'server29', label: '111Movies' },
+  { key: 'server30', label: 'VidFast' },
 ];
+
+const serverKeySet = new Set<ServerKey>(serverOptions.map((s) => s.key));
+
+const isServerKey = (value: string): value is ServerKey => {
+  return serverKeySet.has(value as ServerKey);
+};
 
 const PlayerMovie = () => {
   const { id } = useParams<{ id: string }>();
@@ -91,8 +95,8 @@ const PlayerMovie = () => {
     // Restore last server used for this movie (per user)
     if (user) {
       const key = `lastServer:${user.id}:movie:${movieId}`;
-      const saved = localStorage.getItem(key) as ServerKey | null;
-      if (saved) setSelectedServer(saved);
+      const saved = localStorage.getItem(key);
+      if (saved && isServerKey(saved)) setSelectedServer(saved);
     }
     const fetchData = async () => {
       setLoading(true);
@@ -107,7 +111,7 @@ const PlayerMovie = () => {
     };
     fetchData();
     window.scrollTo(0, 0);
-  }, [movieId]);
+  }, [movieId, user]);
 
   // Note: Watch history tracking is now handled by usePlayerEvents hook
 

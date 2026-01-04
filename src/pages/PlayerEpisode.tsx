@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CircleChevronLeft, CircleChevronRight, Download } from 'lucide-react';
 import { tmdbService, getStreamingUrl } from '../services/tmdb';
-import type { TVShowDetails } from '../types';
+import type { TVShowDetails, Episode } from '../types';
 import './PlayerPage.css';
 import { useAuth } from '../context/AuthContext';
 import { userProgressService } from '../services/userProgress';
@@ -24,14 +24,13 @@ type ServerKey =
   | 'server12'
   | 'server13'
   | 'server14'
-  | 'server15'
-  | 'server16'
   | 'server17'
   | 'server18'
-  | 'server21'
   | 'server26'
   | 'server27'
-  | 'server28';
+  | 'server28'
+  | 'server29'
+  | 'server30';
 
 const serverOptions: { key: ServerKey; label: string }[] = [
   // Servers with postMessage support (resumable) - RECOMMENDED
@@ -40,12 +39,9 @@ const serverOptions: { key: ServerKey; label: string }[] = [
   { key: 'server27', label: '⭐ Vidlink.pro - Resumable' },
   // Other servers
   { key: 'server6', label: '⭐ Vidking - Resumable' },
-  { key: 'server16', label: 'Vidsrc.cc v3' },
-  { key: 'server15', label: 'Vidsrc.cc v2' },
   { key: 'server1', label: 'Vidsrc.xyz' },
   { key: 'server2', label: 'Vidsrc.to' },
   { key: 'server17', label: 'Vidsrc.icu' },
-  { key: 'server21', label: 'Vidsrc.me' },
   { key: 'server3', label: 'Vidsrc-embed.ru' },
   { key: 'server10', label: 'Multiembed' },
   { key: 'server13', label: 'AutoEmbed' },
@@ -58,7 +54,15 @@ const serverOptions: { key: ServerKey; label: string }[] = [
   { key: 'server5', label: 'Videasy' },
   { key: 'server26', label: 'Smashystream' },
   { key: 'server28', label: 'Embedsoap' },
+  { key: 'server29', label: '111Movies' },
+  { key: 'server30', label: 'VidFast' },
 ];
+
+const serverKeySet = new Set<ServerKey>(serverOptions.map((s) => s.key));
+
+const isServerKey = (value: string): value is ServerKey => {
+  return serverKeySet.has(value as ServerKey);
+};
 
 const PlayerEpisode = () => {
   const { tvId, seasonNumber, episodeNumber } = useParams<{
@@ -70,7 +74,7 @@ const PlayerEpisode = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [tvShow, setTvShow] = useState<TVShowDetails | null>(null);
-  const [episodes, setEpisodes] = useState<any[]>([]);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedServer, setSelectedServer] = useState<ServerKey>('server7'); // VidLink (JW) - has postMessage support
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -90,8 +94,8 @@ const PlayerEpisode = () => {
     // Restore last server used for this show (per user)
     if (user && tvNumericId) {
       const key = `lastServer:${user.id}:tv:${tvNumericId}`;
-      const saved = localStorage.getItem(key) as ServerKey | null;
-      if (saved) setSelectedServer(saved);
+      const saved = localStorage.getItem(key);
+      if (saved && isServerKey(saved)) setSelectedServer(saved);
     }
     const fetchData = async () => {
       if (!tvNumericId) return;
@@ -111,7 +115,7 @@ const PlayerEpisode = () => {
     };
     fetchData();
     window.scrollTo(0, 0);
-  }, [tvNumericId, seasonNum]);
+  }, [tvNumericId, seasonNum, user]);
 
   const currentEpisode = useMemo(
     () => episodes.find((e) => e.episode_number === episodeNum),
