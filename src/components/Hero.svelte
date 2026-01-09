@@ -278,29 +278,29 @@
 
           <!-- Floating Control Bar -->
           <div
-            class="flex items-center gap-2 rounded-[24px] bg-black/40 p-2 backdrop-blur-2xl ring-1 ring-white/10 shadow-2xl"
+            class="flex items-center gap-1.5 rounded-[20px] bg-black/40 p-1.5 backdrop-blur-2xl ring-1 ring-white/10 shadow-2xl sm:gap-2 sm:rounded-[24px] sm:p-2"
           >
             <a
               use:link
               {href}
-              class="flex h-11 items-center gap-2 rounded-xl bg-yellow-400 px-6 text-sm font-black text-black shadow-lg shadow-yellow-400/20 transition-transform hover:scale-105 active:scale-95"
+              class="flex h-9 items-center gap-1.5 rounded-xl bg-yellow-400 px-3 text-xs font-black text-black shadow-lg shadow-yellow-400/20 transition-transform hover:scale-105 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
             >
-              <Play size={18} fill="currentColor" />
+              <Play size={16} fill="currentColor" />
               Watch
             </a>
 
             <a
               use:link
               {href}
-              class="flex h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 text-sm font-black text-white/90 transition-transform hover:bg-white/10 active:scale-95"
+              class="flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-black text-white/90 transition-transform hover:bg-white/10 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
             >
               Details
             </a>
 
-            <div class="h-6 w-px bg-white/10 mx-1"></div>
+            <div class="h-5 w-px bg-white/10 mx-0.5 sm:h-6 sm:mx-1"></div>
 
             <button
-              class={`flex h-11 w-11 items-center justify-center rounded-xl border transition-all active:scale-95 ${
+              class={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all active:scale-95 sm:h-11 sm:w-11 ${
                 isInWatchlist
                   ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/15"
                   : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
@@ -308,14 +308,14 @@
               on:click={toggleWatchlist}
               aria-label="Toggle watchlist"
             >
-              <Bookmark size={20} />
+              <Bookmark size={18} />
             </button>
 
             <button
               on:click={handleShare}
-              class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all active:scale-95"
+              class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all active:scale-95 sm:h-11 sm:w-11"
             >
-              <Share2 size={20} />
+              <Share2 size={18} />
             </button>
           </div>
         </div>
