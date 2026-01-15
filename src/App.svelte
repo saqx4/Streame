@@ -1,7 +1,6 @@
 <script lang="ts">
   import Router from "svelte-spa-router";
   import Sidebar from "./components/Sidebar.svelte";
-  import NoAudioBadge from "./components/NoAudioBadge.svelte";
   import Home from "./pages/Home.svelte";
   import Movies from "./pages/Movies.svelte";
   import MovieDetail from "./pages/MovieDetail.svelte";
@@ -42,5 +41,4 @@
       <Router {routes} />
     </div>
   </main>
-  <NoAudioBadge />
 </div>

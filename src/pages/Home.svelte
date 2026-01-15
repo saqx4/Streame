@@ -27,19 +27,20 @@
     "Apple Tv",
   ];
 
-  let latestMovies: Item[] = [];
-  let latestTV: Item[] = [];
-  let latestKDramas: Item[] = [];
-  let latestAnime: Item[] = [];
-  let latestManga: Item[] = [];
-  let latestOnPlatforms: Item[] = [];
-
+  let trendingMovies: Item[] = [];
+  let trendingTV: Item[] = [];
+  let topRatedMovies: Item[] = [];
+  let topRatedTV: Item[] = [];
   let popularMovies: Item[] = [];
   let popularTV: Item[] = [];
-  let popularKDramas: Item[] = [];
-  let popularAnime: Item[] = [];
-  let popularManga: Item[] = [];
-  let popularOnPlatforms: Item[] = [];
+  let actionMovies: Item[] = [];
+  let comedyMovies: Item[] = [];
+  let dramaMovies: Item[] = [];
+  let horrorMovies: Item[] = [];
+  let romanceMovies: Item[] = [];
+  let sciFiMovies: Item[] = [];
+  let documentaries: Item[] = [];
+  let animationMovies: Item[] = [];
 
   let heroItems: any[] = [];
 
@@ -65,77 +66,55 @@
     loading = true;
     try {
       const [
-        latestMoviesRes,
-        latestTVRes,
-        latestKDramasRes,
-        latestAnimeRes,
-        latestMangaRes,
+        trendingMoviesRes,
+        trendingTVRes,
+        topRatedMoviesRes,
+        topRatedTVRes,
         popularMoviesRes,
         popularTVRes,
-        popularKDramasRes,
-        popularAnimeRes,
-        popularMangaRes,
+        actionRes,
+        comedyRes,
+        dramaRes,
+        horrorRes,
+        romanceRes,
+        sciFiRes,
+        docRes,
+        animationRes,
         trendingAllRes,
       ] = await Promise.all([
-        tmdbService.getUpcomingMovies(1),
-        tmdbService.getOnTheAirTVShows(1),
-        tmdbService.discoverTVShows(1, {
-          language: "ko",
-          genre: 18,
-          sortBy: "first_air_date.desc",
-        }),
-        tmdbService.discoverTVShows(1, {
-          language: "ja",
-          genre: 16,
-          sortBy: "first_air_date.desc",
-        }),
-        tmdbService.discoverMovies(1, {
-          language: "ja",
-          genre: 16,
-          sortBy: "primary_release_date.desc",
-        }),
+        tmdbService.getTrendingMovies("week"),
+        tmdbService.getTrendingTVShows("week"),
+        tmdbService.getTopRatedMovies(1),
+        tmdbService.getTopRatedTVShows(1),
         tmdbService.getPopularMovies(1),
         tmdbService.getPopularTVShows(1),
-        tmdbService.discoverTVShows(1, {
-          language: "ko",
-          genre: 18,
-          sortBy: "popularity.desc",
-        }),
-        tmdbService.discoverTVShows(1, {
-          language: "ja",
-          genre: 16,
-          sortBy: "popularity.desc",
-        }),
-        tmdbService.discoverMovies(1, {
-          language: "ja",
-          genre: 16,
-          sortBy: "popularity.desc",
-        }),
+        tmdbService.discoverMovies(1, { genre: 28 }),
+        tmdbService.discoverMovies(1, { genre: 35 }),
+        tmdbService.discoverMovies(1, { genre: 18 }),
+        tmdbService.discoverMovies(1, { genre: 27 }),
+        tmdbService.discoverMovies(1, { genre: 10749 }),
+        tmdbService.discoverMovies(1, { genre: 878 }),
+        tmdbService.discoverMovies(1, { genre: 99 }),
+        tmdbService.discoverMovies(1, { genre: 16 }),
         tmdbService.getTrendingAll("week"),
       ]);
 
-      latestMovies = mapMovies(latestMoviesRes.results);
-      latestTV = mapTV(latestTVRes.results);
-      latestKDramas = mapTV(latestKDramasRes.results);
-      latestAnime = mapTV(latestAnimeRes.results);
-      latestManga = mapMovies(latestMangaRes.results as any);
-
+      trendingMovies = mapMovies(trendingMoviesRes.results);
+      trendingTV = mapTV(trendingTVRes.results);
+      topRatedMovies = mapMovies(topRatedMoviesRes.results);
+      topRatedTV = mapTV(topRatedTVRes.results);
       popularMovies = mapMovies(popularMoviesRes.results);
       popularTV = mapTV(popularTVRes.results);
-      popularKDramas = mapTV(popularKDramasRes.results);
-      popularAnime = mapTV(popularAnimeRes.results);
-      popularManga = mapMovies(popularMangaRes.results as any);
+      actionMovies = mapMovies(actionRes.results);
+      comedyMovies = mapMovies(comedyRes.results);
+      dramaMovies = mapMovies(dramaRes.results);
+      horrorMovies = mapMovies(horrorRes.results);
+      romanceMovies = mapMovies(romanceRes.results);
+      sciFiMovies = mapMovies(sciFiRes.results);
+      documentaries = mapMovies(docRes.results);
+      animationMovies = mapMovies(animationRes.results);
 
-      // Platform sections (UI-driven): mix trending content to populate rows.
       const mixed = trendingAllRes.results;
-      const mixedMovies = mixed.filter((x: any) => (x as any).title);
-      const mixedTV = mixed.filter((x: any) => (x as any).name);
-      latestOnPlatforms = [
-        ...mapTV(mixedTV as any),
-        ...mapMovies(mixedMovies as any),
-      ].slice(0, 24);
-      popularOnPlatforms = [...popularTV, ...popularMovies].slice(0, 24);
-
       heroItems = mixed
         .filter(
           (x: any) =>
@@ -183,29 +162,18 @@
 
   <ContinueWatching />
 
-  <SectionCarousel title="Latest Movies" items={latestMovies} {loading} />
-  <SectionCarousel title="Latest TV Shows" items={latestTV} {loading} />
-  <SectionCarousel title="Latest K-Dramas" items={latestKDramas} {loading} />
-  <SectionCarousel title="Latest Anime" items={latestAnime} {loading} />
-  <SectionCarousel title="Latest Manga" items={latestManga} {loading} />
-
-  <SectionCarousel
-    title="Latest TV Shows Movies on Netflix Prime Max Star+ Disney+ Paramount+ Apple Tv"
-    items={latestOnPlatforms}
-    chips={platforms}
-    {loading}
-  />
-
+  <SectionCarousel title="Trending Movies" items={trendingMovies} {loading} />
+  <SectionCarousel title="Trending TV Shows" items={trendingTV} {loading} />
+  <SectionCarousel title="Top Rated Movies" items={topRatedMovies} {loading} />
+  <SectionCarousel title="Top Rated TV Shows" items={topRatedTV} {loading} />
   <SectionCarousel title="Popular Movies" items={popularMovies} {loading} />
   <SectionCarousel title="Popular TV Shows" items={popularTV} {loading} />
-  <SectionCarousel title="Popular K-Dramas" items={popularKDramas} {loading} />
-  <SectionCarousel title="Popular Anime" items={popularAnime} {loading} />
-  <SectionCarousel title="Popular Manga" items={popularManga} {loading} />
-
-  <SectionCarousel
-    title="Popular TV Shows Movies on Netflix Prime Max Star+ Disney+ Paramount+ Apple Tv"
-    items={popularOnPlatforms}
-    chips={platforms}
-    {loading}
-  />
+  <SectionCarousel title="Action Movies" items={actionMovies} {loading} />
+  <SectionCarousel title="Comedy Movies" items={comedyMovies} {loading} />
+  <SectionCarousel title="Drama Movies" items={dramaMovies} {loading} />
+  <SectionCarousel title="Horror Movies" items={horrorMovies} {loading} />
+  <SectionCarousel title="Romance Movies" items={romanceMovies} {loading} />
+  <SectionCarousel title="Sci-Fi Movies" items={sciFiMovies} {loading} />
+  <SectionCarousel title="Documentaries" items={documentaries} {loading} />
+  <SectionCarousel title="Animation Movies" items={animationMovies} {loading} />
 </section>

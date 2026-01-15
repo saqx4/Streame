@@ -2,12 +2,14 @@
   import { onDestroy, onMount } from "svelte";
   import { tmdbService, getPosterUrl } from "../services/tmdb";
   import { link } from "svelte-spa-router";
+  import { LayoutGrid, Film, Tv } from "lucide-svelte";
 
   let query = "";
   let loading = false;
   let error: string | null = null;
   let page = 1;
   let totalPages = 1;
+  let selectedType: "all" | "movie" | "tv" = "all";
 
   type SearchItem = any;
   let results: SearchItem[] = [];
@@ -57,7 +59,7 @@
       );
 
   const toResult = (item: SearchItem) => {
-    const isMovie = Boolean(item.title);
+    const isMovie = item.media_type === "movie" || Boolean(item.title);
     return {
       id: item.id,
       title: isMovie ? item.title : item.name,
@@ -89,7 +91,15 @@
     loading = true;
     error = null;
     try {
-      const res = await tmdbService.searchMulti(query.trim(), nextPage);
+      let res;
+      if (selectedType === "movie") {
+        res = await tmdbService.searchMovies(query.trim(), nextPage);
+      } else if (selectedType === "tv") {
+        res = await tmdbService.searchTVShows(query.trim(), nextPage);
+      } else {
+        res = await tmdbService.searchMulti(query.trim(), nextPage);
+      }
+
       results = normalize(res.results as any);
       page = res.page;
       totalPages = res.total_pages;
@@ -113,7 +123,7 @@
     }
   };
 
-  $: query, scheduleSearch();
+  $: query, selectedType, scheduleSearch();
 
   onDestroy(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -138,35 +148,42 @@
       </div>
     </div>
 
-    <!-- Active Tab (Fixed to General as requested) -->
+    <!-- Tabs Section -->
     <div class="flex items-center gap-3">
       <button
-        class="flex items-center gap-2 rounded-xl border border-yellow-500/50 bg-yellow-500/10 px-6 py-2.5 text-xs font-bold text-yellow-500"
+        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+          selectedType === "all"
+            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
+            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+        }`}
+        on:click={() => (selectedType = "all")}
       >
-        <span class="opacity-80">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            ><rect x="3" y="3" width="7" height="7"></rect><rect
-              x="14"
-              y="3"
-              width="7"
-              height="7"
-            ></rect><rect x="14" y="14" width="7" height="7"></rect><rect
-              x="3"
-              y="14"
-              width="7"
-              height="7"
-            ></rect></svg
-          >
-        </span>
+        <LayoutGrid size={14} />
         General
+      </button>
+
+      <button
+        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+          selectedType === "movie"
+            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
+            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+        }`}
+        on:click={() => (selectedType = "movie")}
+      >
+        <Film size={14} />
+        Movies
+      </button>
+
+      <button
+        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+          selectedType === "tv"
+            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
+            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+        }`}
+        on:click={() => (selectedType = "tv")}
+      >
+        <Tv size={14} />
+        TV Shows
       </button>
     </div>
   </div>

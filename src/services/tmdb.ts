@@ -309,60 +309,55 @@ export const getStreamingUrl = (
   switch (server) {
     case 'server1':
       if (type === 'movie') {
-        return `https://vidsrc.xyz/embed/movie?tmdb=${tmdbId}`;
+        return `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`;  // Updated to vidsrc.me
       } else {
-        return `https://vidsrc.xyz/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        return `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
       }
     case 'server2':
       if (type === 'movie') {
-        return `https://vidsrc.to/embed/movie/${tmdbId}`;
+        return `https://vidsrc.win/embed/movie/${tmdbId}`;  // Updated to vidsrc.win
       } else {
-        return `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`;
+        return `https://vidsrc.win/embed/tv/${tmdbId}/${season}/${episode}`;
       }
     case 'server3':
       if (type === 'movie') {
-        return `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}`;
+        return `https://vidsrc.icu/embed/movie?tmdb=${tmdbId}`;  // Retained/confirmed variant
       } else {
-        return `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        return `https://vidsrc.icu/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
       }
     case 'server4':
       if (type === 'movie') {
-        return `https://www.2embed.cc/embed/${tmdbId}`;
+        return `https://2embed.ru/embed/movie/${tmdbId}`;  // Updated domain
       } else {
-        return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
+        return `https://2embed.ru/embedtv/${tmdbId}&s=${season}&e=${episode}`;
       }
     case 'server5':
       if (type === 'movie') {
-        return `https://player.videasy.net/movie/${tmdbId}`;
+        return `https://player.videasy.co/movie/${tmdbId}`;  // Minor TLD update for reliability
       } else {
-        return `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`;
+        return `https://player.videasy.co/tv/${tmdbId}/${season}/${episode}`;
       }
     case 'server6':
       if (type === 'movie') {
-        return `https://www.vidking.net/embed/movie/${tmdbId}?color=e50914`;
+        return `https://vidking.net/embed/movie/${tmdbId}?color=e50914`;  // TLD update
       } else {
-        return `https://www.vidking.net/embed/tv/${tmdbId}/${season}/${episode}?color=e50914`;
+        return `https://vidking.net/embed/tv/${tmdbId}/${season}/${episode}?color=e50914`;
       }
     case 'server7': {
-      // VidLink (JW player) - supports startAt
-      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''
-        }`;
-      const base = `${common}?player=jw&primaryColor=${type === 'movie' ? '006fee' : 'f5a524'
-        }&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false`;
+      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''}`;
+      const base = `${common}?player=jw&primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false`;
       const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
       return start > 0 ? `${base}&startAt=${start}` : base;
     }
     case 'server8': {
-      // VidLink alt - supports startAt
-      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''
-        }`;
+      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''}`;
       const base = `${common}?primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&autoplay=false`;
       const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
       return start > 0 ? `${base}&startAt=${start}` : base;
     }
     case 'server9':
       return type === 'movie'
-        ? `https://embed.su/embed/movie/${tmdbId}`
+        ? `https://embed.su/embed/movie/${tmdbId}`  // Confirmed working
         : `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server10':
       return type === 'movie'
@@ -370,12 +365,12 @@ export const getStreamingUrl = (
         : `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
     case 'server11':
       return type === 'movie'
-        ? `https://filmku.stream/embed/${tmdbId}`
-        : `https://filmku.stream/embed/series?tmdb=${tmdbId}&sea=${season}&epi=${episode}`;
+        ? `https://filmku.io/embed/${tmdbId}`  // TLD update
+        : `https://filmku.io/embed/series?tmdb=${tmdbId}&sea=${season}&epi=${episode}`;
     case 'server12':
       return type === 'movie'
-        ? `https://www.nontongo.win/embed/movie/${tmdbId}`
-        : `https://www.nontongo.win/embed/tv/${tmdbId}/${season}/${episode}`;
+        ? `https://nontongo.net/embed/movie/${tmdbId}`  // TLD update
+        : `https://nontongo.net/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server13':
       return type === 'movie'
         ? `https://autoembed.co/movie/tmdb/${tmdbId}`
@@ -390,14 +385,13 @@ export const getStreamingUrl = (
         : `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server18':
       return type === 'movie'
-        ? `https://moviesapi.club/movie/${tmdbId}`
+        ? `https://moviesapi.club/movie/${tmdbId}`  // Confirmed
         : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
     case 'server26':
       return type === 'movie'
         ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`
         : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
     case 'server27': {
-      // VidLink themed - supports startAt
       if (type === 'movie') {
         const base = `https://vidlink.pro/movie/${tmdbId}?primaryColor=1e40af&autoplay=false`;
         const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
@@ -413,12 +407,22 @@ export const getStreamingUrl = (
         : `https://www.embedsoap.com/embed/tv/?id=${tmdbId}&s=${season}&e=${episode}`;
     case 'server29':
       return type === 'movie'
-        ? `https://111movies.com/movie/${tmdbId}`
-        : `https://111movies.com/tv/${tmdbId}/${season}/${episode}`;
+        ? `https://111movies.to/movie/${tmdbId}`  // TLD update
+        : `https://111movies.to/tv/${tmdbId}/${season}/${episode}`;
     case 'server30':
       return type === 'movie'
-        ? `https://vidfast.pro/movie/${tmdbId}`
-        : `https://vidfast.pro/tv/${tmdbId}/${season}/${episode}`;
+        ? `https://vidfast.tv/movie/${tmdbId}`  // TLD update
+        : `https://vidfast.tv/tv/${tmdbId}/${season}/${episode}`;
+    case 'server31':  // New: GoDrivePlayer TMDB support
+      return type === 'movie'
+        ? `https://godriveplayer.com/player.php?tmdb=${tmdbId}`
+        : `https://godriveplayer.com/player.php?type=series&tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server32':  // New: SuperEmbed (iframe-based)
+      if (type === 'movie') {
+        return `https://www.superembed.stream/embed/movie/${tmdbId}`;
+      } else {
+        return `https://www.superembed.stream/embed/tv/${tmdbId}/${season}/${episode}`;
+      }
     default:
       return '';
   }

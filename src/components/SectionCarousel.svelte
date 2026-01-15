@@ -1,7 +1,6 @@
 <script lang="ts">
   import { ChevronLeft, ChevronRight } from 'lucide-svelte'
   import MediaCard from './MediaCard.svelte'
-  import { dragScroll } from '../lib/dragScroll'
 
   type CarouselItem = {
     id: number
@@ -29,11 +28,7 @@
   <div class="flex items-center justify-between">
     <h2 class="text-[22px] font-semibold tracking-tight text-white/90">{title}</h2>
     <div class="flex items-center gap-1 text-xs text-white/60">
-      <ChevronLeft size={14} class="opacity-70" />
-      <span>swipe</span>
-      <ChevronRight size={14} class="opacity-70" />
-
-      <div class="ml-2 hidden items-center gap-1 sm:flex">
+      <div class="hidden items-center gap-1 sm:flex">
         <button
           class="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/5 ring-1 ring-white/10 hover:bg-white/10"
           on:click={() => scrollByAmount(-1)}
@@ -62,7 +57,6 @@
 
   <div
     bind:this={scroller}
-    use:dragScroll
     class="no-scrollbar flex gap-4 overflow-x-auto pb-3 pr-2"
   >
     {#if loading}

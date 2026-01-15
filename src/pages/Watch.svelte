@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { derived } from "svelte/store";
-  import { params } from "svelte-spa-router";
+  import { params, push } from "svelte-spa-router";
   import { getStreamingUrl, tmdbService } from "../services/tmdb";
   import {
     playerServerOptions,
@@ -10,6 +10,7 @@
   } from "../services/playerServers";
   import { supabase, isSupabaseEnabled } from "../lib/supabaseClient";
   import { watchHistoryService } from "../services/watchHistory";
+  import { ArrowLeft, ChevronLeft, ChevronRight, Server, ExternalLink, RefreshCw } from "lucide-svelte";
 
   type RouteParams = {
     type?: "movie" | "tv";
@@ -273,12 +274,15 @@
     }
   };
 
+  let seasonData: any = null;
+
   const loadMeta = async (key: string) => {
     const reqId = ++metaReq;
 
     title = null;
     posterPath = null;
     durationSeconds = null;
+    seasonData = null;
 
     if (!tmdbId || !Number.isFinite(tmdbId) || tmdbId <= 0) return;
 
@@ -309,6 +313,7 @@
             seasonNumber,
           );
           if (reqId !== metaReq || key !== metaKey) return;
+          seasonData = season;
           const ep = Array.isArray(season?.episodes)
             ? season.episodes.find(
                 (e: any) => e?.episode_number === episodeNumber,
@@ -325,6 +330,25 @@
     } catch {
       // ignore
     }
+  };
+
+  $: nextEp = (mediaType === "tv" && seasonData && episodeNumber)
+    ? (seasonData.episodes || []).find((e: any) => e.episode_number === episodeNumber + 1)
+    : null;
+  $: prevEp = (mediaType === "tv" && seasonData && episodeNumber)
+    ? (seasonData.episodes || []).find((e: any) => e.episode_number === episodeNumber - 1)
+    : null;
+
+  const goBack = () => {
+    if (tmdbId) {
+      push(`/${mediaType}/${tmdbId}`);
+    } else {
+      window.history.back();
+    }
+  };
+
+  const navigateToEpisode = (ep: number) => {
+    push(`/watch/tv/${tmdbId}/${seasonNumber}/${ep}`);
   };
 
   const handleVisibilityChange = () => {
@@ -408,87 +432,177 @@
   }
 </script>
 
-<section class="space-y-4">
-  <div
-    class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-  >
-    <div>
-      <h1 class="text-2xl font-semibold">Watch</h1>
-      <p class="mt-1 text-sm text-white/60">
-        {#if mediaType === "tv"}
-          TV • TMDB {tmdbId}{#if seasonNumber && episodeNumber}
-            • S{seasonNumber} E{episodeNumber}{/if}
-        {:else}
-          Movie • TMDB {tmdbId}
-        {/if}
-      </p>
+<section class="max-w-[1200px] mx-auto space-y-6">
+  <!-- Header / Navigation -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="flex items-center gap-4">
+      <button 
+        on:click={goBack}
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95"
+        aria-label="Go back"
+      >
+        <ArrowLeft size={20} />
+      </button>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight sm:text-2xl">
+          {title || 'Loading...'}
+        </h1>
+        <div class="flex items-center gap-2 mt-0.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-white/40 bg-white/5 px-1.5 py-0.5 rounded">
+            {mediaType}
+          </span>
+          {#if mediaType === 'tv' && seasonNumber && episodeNumber}
+            <span class="text-sm text-white/50">
+              Season {seasonNumber} • Episode {episodeNumber}
+            </span>
+          {/if}
+        </div>
+      </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-2">
-      {#each playerServerOptions as s}
-        <button
-          class={`rounded-xl border px-3 py-2 text-xs font-medium transition-colors ${
-            preferredServer === s.key
-              ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300"
-              : "border-white/10 bg-white/5 text-white/80 hover:bg-white/10"
-          }`}
-          on:click={() => savePreferredServer(s.key)}
-        >
-          {s.label}
-        </button>
-      {/each}
+    <!-- Server Selector -->
+    <div class="relative group min-w-[180px]">
+      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white/40">
+        <Server size={14} />
+      </div>
+      <select
+        class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-10 text-sm font-medium text-white transition-all hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
+        value={preferredServer}
+        on:change={(e) => {
+          const val = e.currentTarget.value;
+          if (isPlayerServerKey(val)) savePreferredServer(val);
+        }}
+      >
+        {#each playerServerOptions as s}
+          <option value={s.key} class="bg-zinc-900 text-white">
+            {s.label}
+          </option>
+        {/each}
+      </select>
+      <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-white/40">
+        <ChevronRight size={14} class="rotate-90" />
+      </div>
     </div>
   </div>
 
   {#if !tmdbId}
-    <div
-      class="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70"
-    >
-      Invalid watch URL.
+    <div class="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-white/10 bg-white/5 text-center">
+      <div class="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4">
+        <ExternalLink size={24} />
+      </div>
+      <h3 class="text-lg font-semibold text-white">Invalid Media</h3>
+      <p class="text-sm text-white/50 mt-1">We couldn't find the content you're looking for.</p>
     </div>
   {:else}
-    <div
-      class="relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950"
-      style="padding-bottom: env(safe-area-inset-bottom);"
-    >
-      <!-- Video Player -->
-      <div class="relative aspect-video">
-        {#if !iframeLoaded}
-          <div
-            class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950"
-          >
-            <div class="flex flex-col items-center gap-4 px-6 text-center">
-              <div
-                class="h-12 w-12 animate-spin rounded-full border-4 border-yellow-400/30 border-t-yellow-400"
-              ></div>
-              <p class="text-sm text-white/60">Loading player...</p>
-              {#if iframeTimedOut}
-                <div class="flex flex-wrap items-center justify-center gap-2">
-                  <button
-                    class="inline-flex h-10 items-center justify-center rounded-xl bg-yellow-400 px-4 text-xs font-black text-black transition-all hover:bg-yellow-300 active:scale-95"
-                    on:click={tryNextServer}
-                  >
-                    Try next server
-                  </button>
-                  <button
-                    class="inline-flex h-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-black text-white transition-all hover:bg-white/10 active:scale-95"
-                    on:click={openInNewTab}
-                  >
-                    Open in new tab
-                  </button>
+    <div class="relative group">
+      <!-- Player Container -->
+      <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl transition-all duration-500">
+        <div class="relative aspect-video">
+          {#if !iframeLoaded}
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/80 backdrop-blur-sm">
+              <div class="flex flex-col items-center gap-5 px-6 text-center">
+                <div class="relative h-16 w-16">
+                  <div class="absolute inset-0 rounded-full border-4 border-yellow-400/20"></div>
+                  <div class="absolute inset-0 rounded-full border-4 border-t-yellow-400 animate-spin"></div>
                 </div>
-              {/if}
+                <div class="space-y-1">
+                  <p class="font-medium text-white">Preparing Stream</p>
+                  <p class="text-xs text-white/40">Connecting to {playerServerOptions.find(s => s.key === preferredServer)?.label}</p>
+                </div>
+                
+                {#if iframeTimedOut}
+                  <div class="flex flex-col gap-3 mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <button
+                      class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-yellow-400 px-6 text-sm font-bold text-black transition-all hover:bg-yellow-300 active:scale-95 shadow-lg shadow-yellow-400/20"
+                      on:click={tryNextServer}
+                    >
+                      <RefreshCw size={16} />
+                      Try next server
+                    </button>
+                    <button
+                      class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 text-sm font-medium text-white transition-all hover:bg-white/10 active:scale-95"
+                      on:click={openInNewTab}
+                    >
+                      <ExternalLink size={16} />
+                      Open in tab
+                    </button>
+                  </div>
+                {/if}
+              </div>
             </div>
+          {/if}
+          <iframe
+            title="Player"
+            src={streamUrl}
+            class="absolute inset-0 h-full w-full"
+            on:load={handleIframeLoad}
+            allow="autoplay; fullscreen; picture-in-picture"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- TV Navigation Overlay/Controls -->
+      {#if mediaType === 'tv' && (prevEp || nextEp)}
+        <div class="flex items-center justify-between gap-4 mt-6">
+          <div class="flex-1">
+            {#if prevEp}
+              <button
+                class="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 pr-5 text-left transition-all hover:bg-white/10 hover:border-white/20 active:scale-95"
+                on:click={() => navigateToEpisode(prevEp.episode_number)}
+              >
+                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 group-hover:bg-white/10 text-white/60 group-hover:text-white transition-colors">
+                  <ChevronLeft size={20} />
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Previous</div>
+                  <div class="text-sm font-medium text-white/80 line-clamp-1">E{prevEp.episode_number}: {prevEp.name || 'Episode ' + prevEp.episode_number}</div>
+                </div>
+              </button>
+            {/if}
           </div>
-        {/if}
-        <iframe
-          title="Player"
-          src={streamUrl}
-          class="absolute inset-0 h-full w-full"
-          on:load={handleIframeLoad}
-          allow="autoplay; fullscreen; picture-in-picture"
-          referrerpolicy="no-referrer"
-        ></iframe>
+
+          <div class="flex-1 flex justify-end">
+            {#if nextEp}
+              <button
+                class="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 pl-5 text-right transition-all hover:bg-white/10 hover:border-white/20 active:scale-95"
+                on:click={() => navigateToEpisode(nextEp.episode_number)}
+              >
+                <div class="order-2 flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20 group-hover:bg-yellow-300 transition-colors">
+                  <ChevronRight size={20} />
+                </div>
+                <div class="order-1">
+                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Next Up</div>
+                  <div class="text-sm font-medium text-white/80 line-clamp-1">E{nextEp.episode_number}: {nextEp.name || 'Episode ' + nextEp.episode_number}</div>
+                </div>
+              </button>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Info Section -->
+    <div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-4">
+      <div class="space-y-1">
+        <h4 class="text-sm font-semibold text-white/90">Trouble with playback?</h4>
+        <p class="text-xs text-white/40 max-w-sm">Try switching servers if the player doesn't load or is slow. Some servers might be blocked in your region.</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-medium text-white/70 transition-all hover:bg-white/10 active:scale-95"
+          on:click={tryNextServer}
+        >
+          <RefreshCw size={14} />
+          Switch Server
+        </button>
+        <button
+          class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-medium text-white/70 transition-all hover:bg-white/10 active:scale-95"
+          on:click={openInNewTab}
+        >
+          <ExternalLink size={14} />
+          External Player
+        </button>
       </div>
     </div>
   {/if}
