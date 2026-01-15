@@ -16,19 +16,6 @@
   let userId: string | null = null;
   let needsLogin = false;
 
-  type Item = {
-    id: number;
-    title: string;
-    posterPath: string | null;
-    href: string;
-    progress: number;
-    type: "movie" | "tv";
-    season?: number;
-    episode?: number;
-    meta?: string | null;
-  };
-
-  let items: Item[] = [];
   let scroller: HTMLDivElement | null = null;
 
   const scrollByAmount = (dir: -1 | 1) => {
@@ -36,21 +23,17 @@
     scroller.scrollBy({ left: dir * 480, behavior: "smooth" });
   };
 
-  const removeItem = async (item: Item) => {
-    if (!userId) return;
-    try {
-      await watchHistoryService.remove(
-        userId,
-        item.id,
-        item.type,
-        item.season,
-        item.episode,
-      );
-      items = items.filter((i) => i.id !== item.id || i.type !== item.type);
-    } catch (e) {
-      console.error("Failed to remove item", e);
-    }
+  type Item = {
+    id: number;
+    type: "movie" | "tv";
+    title: string;
+    posterPath: string | null;
+    href: string;
+    progress: number;
+    meta?: string | null;
   };
+
+  let items: Item[] = [];
 
   const PER_TITLE_SERVER_PREFIX = "streame:lastServer";
 
@@ -140,13 +123,11 @@
 
       items = deduped.slice(0, 10).map((h) => ({
         id: h.tmdb_id,
+        type: h.type,
         title: h.title,
         posterPath: h.poster_path,
         href: toHref(h),
         progress: h.progress || 0,
-        type: h.type,
-        season: h.season_number,
-        episode: h.episode_number,
         meta:
           h.type === "tv"
             ? `S${h.season_number ?? 1} E${h.episode_number ?? 1}`
@@ -158,6 +139,24 @@
       items = [];
     } finally {
       loading = false;
+    }
+  };
+
+  const removeItem = async (e: MouseEvent, item: Item) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!userId) return;
+
+    // Optimistic UI update
+    items = items.filter((i) => !(i.id === item.id && i.type === item.type));
+
+    try {
+      await watchHistoryService.remove(userId, item.id, item.type);
+    } catch (err) {
+      console.error("Failed to remove item", err);
+      // Re-load if failed
+      load();
     }
   };
 
@@ -197,14 +196,14 @@
       <h2 class="text-lg font-bold text-white">Continue Watching</h2>
       <div class="flex items-center gap-2">
         <button
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition-colors"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95 disabled:opacity-20"
           on:click={() => scrollByAmount(-1)}
           aria-label="Scroll left"
         >
           <ChevronLeft size={18} />
         </button>
         <button
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 transition-colors"
+          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95 disabled:opacity-20"
           on:click={() => scrollByAmount(1)}
           aria-label="Scroll right"
         >
@@ -217,7 +216,7 @@
       bind:this={scroller}
       class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
     >
-      {#each items as item (item.id + item.type)}
+      {#each items as item (`${item.type}-${item.id}`)}
         <div class="group relative flex-shrink-0 w-[200px] sm:w-[240px]">
           <a
             use:link
@@ -238,9 +237,9 @@
                 class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <div
-                  class="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/30"
+                  class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/30"
                 >
-                  <Play size={24} class="text-black" fill="currentColor" />
+                  <Play size={20} class="text-black" fill="currentColor" />
                 </div>
               </div>
 
@@ -272,8 +271,8 @@
 
           <!-- Delete Button -->
           <button
-            on:click|preventDefault={() => removeItem(item)}
-            class="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100"
+            class="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
+            on:click={(e) => removeItem(e, item)}
             title="Remove from history"
           >
             <Trash2 size={14} />
