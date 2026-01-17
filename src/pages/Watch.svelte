@@ -41,6 +41,9 @@
   let intervalId: any = null;
   let lastSavedMs = 0;
 
+  let playAccumulatedMs = 0;
+  let playStartMs: number | null = null;
+
   let metaKey = "";
   let metaReq = 0;
 
@@ -204,8 +207,36 @@
       ? Math.floor(startAtFromParams)
       : startAtFromQuery;
 
+  const canEstimatePlaying = () => {
+    if (!iframeLoaded) return false;
+    if (iframeTimedOut) return false;
+    if (typeof document !== "undefined" && document.hidden) return false;
+    return true;
+  };
+
+  const pauseEstimator = () => {
+    if (playStartMs === null) return;
+    playAccumulatedMs += Math.max(0, Date.now() - playStartMs);
+    playStartMs = null;
+  };
+
+  const resumeEstimator = () => {
+    if (!canEstimatePlaying()) return;
+    if (playStartMs !== null) return;
+    playStartMs = Date.now();
+  };
+
+  const resetEstimator = (startAtSeconds: number) => {
+    playAccumulatedMs = 0;
+    playStartMs = null;
+    baseStartAt = Math.max(0, Math.floor(startAtSeconds));
+    sessionStartMs = Date.now();
+    resumeEstimator();
+  };
+
   const currentEstimatedPosition = () => {
-    const delta = Math.max(0, Math.floor((Date.now() - sessionStartMs) / 1000));
+    const runningMs = playStartMs !== null ? Math.max(0, Date.now() - playStartMs) : 0;
+    const delta = Math.floor((playAccumulatedMs + runningMs) / 1000);
     return Math.max(0, baseStartAt + delta);
   };
 
@@ -353,11 +384,15 @@
 
   const handleVisibilityChange = () => {
     if (document.hidden) {
+      pauseEstimator();
       flushProgress();
+    } else {
+      resumeEstimator();
     }
   };
 
   const handlePageHide = () => {
+    pauseEstimator();
     flushProgress();
   };
 
@@ -365,6 +400,7 @@
     iframeLoaded = true;
     iframeTimedOut = false;
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
+    resumeEstimator();
   };
 
   const openInNewTab = () => {
@@ -395,6 +431,7 @@
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
     iframeTimeoutId = setTimeout(() => {
       iframeTimedOut = true;
+      pauseEstimator();
     }, 20_000);
   }
 
@@ -421,8 +458,7 @@
     Number.isFinite(startAt) &&
     startAt >= 0
   ) {
-    baseStartAt = Math.floor(startAt);
-    sessionStartMs = Date.now();
+    resetEstimator(startAt);
     lastSavedMs = 0;
   }
 

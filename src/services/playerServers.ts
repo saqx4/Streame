@@ -13,6 +13,8 @@ export type PlayerServerKey =
   | 'server12'
   | 'server13'
   | 'server14'
+  | 'server15'
+  | 'server16'
   | 'server17'
   | 'server18'
   | 'server26'
@@ -40,6 +42,8 @@ export const playerServerOptions: { key: PlayerServerKey; label: string }[] = [
   { key: 'server12', label: 'Nontongo' },
   { key: 'server13', label: 'AutoEmbed' },
   { key: 'server14', label: 'Player.Autoembed' },
+  { key: 'server15', label: '2Embed.cc (mirror)' },
+  { key: 'server16', label: 'VidKing (embed)' },
   { key: 'server17', label: 'Vidsrc.icu' },
   { key: 'server18', label: 'MoviesAPI' },
   { key: 'server26', label: 'Smashystream' },

@@ -147,31 +147,12 @@ export const watchHistoryService = {
   async add(userId: string, item: Omit<WatchHistoryItem, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<void> {
     updateLocalCache(userId, item);
 
+    // Always persist locally first so progress is not lost on fast tab close/navigation.
+    addToLocalQueue(userId, item);
+
     try {
       await syncOfflineQueue();
-
-      const { error } = await supabase
-        .from('watch_history')
-        .upsert({
-          user_id: userId,
-          tmdb_id: item.tmdb_id,
-          type: item.type,
-          title: item.title,
-          poster_path: item.poster_path,
-          progress: item.progress,
-          duration: item.duration,
-          last_position: item.last_position,
-          season_number: item.season_number,
-          episode_number: item.episode_number,
-          last_watched: item.last_watched,
-          updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id,tmdb_id,type,season_number,episode_number',
-        });
-
-      if (error) throw error;
     } catch (err) {
-      addToLocalQueue(userId, item);
       console.warn('Saved to local storage (offline):', err);
     }
   },
