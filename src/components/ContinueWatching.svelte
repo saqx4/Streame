@@ -8,7 +8,6 @@
   } from "../services/watchHistory";
   import { getPosterUrl } from "../services/tmdb";
   import { redirectToLogin } from "../lib/loginRedirect";
-  import { isPlayerServerKey, isResumableServerKey } from "../services/playerServers";
   import { Play, X, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
 
   let loading = true;
@@ -29,65 +28,23 @@
     title: string;
     posterPath: string | null;
     href: string;
-    progress: number;
     meta?: string | null;
   };
 
   let items: Item[] = [];
 
-  const PER_TITLE_SERVER_PREFIX = "streame:lastServer";
-
-  const readLastServerFor = (it: WatchHistoryItem) => {
-    try {
-      const baseKey =
-        it.type === "tv"
-          ? `${PER_TITLE_SERVER_PREFIX}:${it.type}:${it.tmdb_id}:${it.season_number ?? 1}:${it.episode_number ?? 1}`
-          : `${PER_TITLE_SERVER_PREFIX}:${it.type}:${it.tmdb_id}`;
-
-      const v = localStorage.getItem(baseKey);
-      return v && isPlayerServerKey(v) ? v : null;
-    } catch {
-      return null;
-    }
-  };
-
   const toHref = (it: WatchHistoryItem) => {
-    const rawStartAt =
-      it.last_position && it.last_position > 0
-        ? Math.floor(it.last_position)
-        : 0;
-    const safeDuration =
-      typeof it.duration === "number" && it.duration > 0 ? it.duration : null;
-    const startAt =
-      safeDuration !== null && rawStartAt >= Math.max(0, safeDuration - 60)
-        ? 0
-        : rawStartAt;
-    const server = readLastServerFor(it);
-    const effectiveServer =
-      startAt > 0
-        ? server && isResumableServerKey(server)
-          ? server
-          : ("server7" as const)
-        : server;
-    const serverQuery = effectiveServer
-      ? `?server=${encodeURIComponent(effectiveServer)}`
-      : "";
-
     if (it.type === "movie") {
-      return startAt > 0
-        ? `/watch/movie/${it.tmdb_id}/${startAt}${serverQuery}`
-        : `/watch/movie/${it.tmdb_id}${serverQuery}`;
+      return `/watch/movie/${it.tmdb_id}`;
     }
 
     const s = it.season_number ?? 1;
     const e = it.episode_number ?? 1;
-    return startAt > 0
-      ? `/watch/tv/${it.tmdb_id}/${s}/${e}/${startAt}${serverQuery}`
-      : `/watch/tv/${it.tmdb_id}/${s}/${e}${serverQuery}`;
+    return `/watch/tv/${it.tmdb_id}/${s}/${e}`;
   };
 
   const dedupeLatest = (history: WatchHistoryItem[]) => {
-    const filtered = history.filter((h) => h.progress > 0 && h.progress < 100);
+    const filtered = history;
 
     const latestMap = new Map<string, WatchHistoryItem>();
     for (const h of filtered) {
@@ -141,7 +98,6 @@
         title: h.title,
         posterPath: h.poster_path,
         href: toHref(h),
-        progress: h.progress || 0,
         meta:
           h.type === "tv"
             ? `S${h.season_number ?? 1} E${h.episode_number ?? 1}`
@@ -257,13 +213,6 @@
                 </div>
               </div>
 
-              <!-- Progress Bar -->
-              <div class="absolute bottom-0 left-0 right-0 h-1 bg-black/60">
-                <div
-                  class="h-full bg-yellow-400 transition-all duration-300"
-                  style="width: {item.progress}%"
-                ></div>
-              </div>
             </div>
 
             <!-- Info -->
@@ -274,11 +223,7 @@
               <div class="mt-1 flex items-center gap-2">
                 {#if item.meta}
                   <span class="text-xs text-white/60">{item.meta}</span>
-                  <span class="text-white/30">•</span>
                 {/if}
-                <span class="text-xs text-yellow-400"
-                  >{Math.round(item.progress)}% watched</span
-                >
               </div>
             </div>
           </a>

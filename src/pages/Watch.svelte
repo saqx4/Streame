@@ -17,15 +17,12 @@
     id?: string;
     season?: string;
     episode?: string;
-    startAt?: string;
   };
 
   const route = derived(params, ($p) => $p as unknown as RouteParams);
 
   const STORAGE_KEY = "streame:preferredServer";
   const PER_TITLE_SERVER_PREFIX = "streame:lastServer";
-  const ESTIMATE_TICK_MS = 2_000;
-  const REMOTE_SAVE_EVERY_MS = 15_000;
 
   let preferredServer: PlayerServerKey = "server7";
   let startAtFromQuery: number | undefined = undefined;
@@ -36,15 +33,7 @@
   let posterPath: string | null = null;
   let durationSeconds: number | null = null;
 
-  let sessionStartMs = Date.now();
-  let baseStartAt = 0;
-  let intervalId: any = null;
-  let lastSavedMs = 0;
-
-  let playAccumulatedMs = 0;
-  let playStartMs: number | null = null;
-
-  let hasUserInteracted = false;
+  let lastOpenedKey = "";
 
   let metaKey = "";
   let metaReq = 0;
@@ -144,12 +133,6 @@
   onMount(() => {
     readQueryParams();
     window.addEventListener("hashchange", readQueryParams);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("pagehide", handlePageHide);
-    window.addEventListener("beforeunload", handlePageHide);
-    window.addEventListener("pointerdown", handleUserInteraction, { passive: true });
-    window.addEventListener("keydown", handleUserInteraction);
-    window.addEventListener("touchstart", handleUserInteraction, { passive: true });
 
     void loadUser();
     try {
@@ -163,27 +146,15 @@
       authSub = null;
     }
 
-    if (intervalId) clearInterval(intervalId);
-    intervalId = setInterval(() => {
-      saveProgress(false);
-    }, ESTIMATE_TICK_MS);
   });
 
   onDestroy(() => {
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-    window.removeEventListener("pagehide", handlePageHide);
-    window.removeEventListener("beforeunload", handlePageHide);
-    window.removeEventListener("pointerdown", handleUserInteraction as any);
-    window.removeEventListener("keydown", handleUserInteraction as any);
-    window.removeEventListener("touchstart", handleUserInteraction as any);
-    if (intervalId) clearInterval(intervalId);
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
     try {
       authSub?.unsubscribe?.();
     } catch {
       // ignore
     }
-    flushProgress();
     window.removeEventListener("hashchange", readQueryParams);
   });
 
@@ -198,7 +169,6 @@
   $: rawId = cleanParam(p.id);
   $: rawSeason = cleanParam(p.season);
   $: rawEpisode = cleanParam(p.episode);
-  $: rawStartAt = cleanParam(p.startAt);
 
   $: hasEpisodeInfo = rawSeason !== undefined && rawEpisode !== undefined;
   $: mediaType = (rawType === "tv" || hasEpisodeInfo
@@ -207,104 +177,30 @@
   $: tmdbId = Number(rawId ?? 0);
   $: seasonNumber = rawSeason ? Number(rawSeason) : undefined;
   $: episodeNumber = rawEpisode ? Number(rawEpisode) : undefined;
-  $: startAtFromParams = rawStartAt ? Number(rawStartAt) : undefined;
-  $: startAt =
-    typeof startAtFromParams === "number" &&
-    Number.isFinite(startAtFromParams) &&
-    startAtFromParams > 0
-      ? Math.floor(startAtFromParams)
-      : startAtFromQuery;
-
-  const canEstimatePlaying = () => {
-    if (!iframeLoaded) return false;
-    if (iframeTimedOut) return false;
-    if (!hasUserInteracted) return false;
-    if (typeof document !== "undefined" && document.hidden) return false;
-    return true;
-  };
-
-  const handleUserInteraction = () => {
-    if (hasUserInteracted) return;
-    hasUserInteracted = true;
-    resumeEstimator();
-  };
-
-  const pauseEstimator = () => {
-    if (playStartMs === null) return;
-    playAccumulatedMs += Math.max(0, Date.now() - playStartMs);
-    playStartMs = null;
-  };
-
-  const resumeEstimator = () => {
-    if (!canEstimatePlaying()) return;
-    if (playStartMs !== null) return;
-    playStartMs = Date.now();
-  };
-
-  const resetEstimator = (startAtSeconds: number) => {
-    playAccumulatedMs = 0;
-    playStartMs = null;
-    baseStartAt = Math.max(0, Math.floor(startAtSeconds));
-    sessionStartMs = Date.now();
-    resumeEstimator();
-  };
-
-  const currentEstimatedPosition = () => {
-    const runningMs = playStartMs !== null ? Math.max(0, Date.now() - playStartMs) : 0;
-    const delta = Math.floor((playAccumulatedMs + runningMs) / 1000);
-    return Math.max(0, baseStartAt + delta);
-  };
-
-  const clampProgress = (p: number) => {
-    if (!Number.isFinite(p)) return 1;
-    if (p < 1) return 1;
-    if (p > 99) return 99;
-    return Math.round(p);
-  };
-
-  const saveProgress = async (force = false) => {
+  const recordOpened = async () => {
     if (!isSupabaseEnabled) return;
     if (!userId) return;
     if (!tmdbId || !Number.isFinite(tmdbId) || tmdbId <= 0) return;
     if (!title) return;
-    if (!hasUserInteracted) return;
+
+    const k = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;
+    if (k === lastOpenedKey) return;
+    lastOpenedKey = k;
 
     savePerTitleServer(preferredServer);
 
-    const now = Date.now();
-    if (!force && now - lastSavedMs < REMOTE_SAVE_EVERY_MS) return;
-
-    const last_position = currentEstimatedPosition();
-    if (last_position <= 0) return;
-
-    const fallbackDuration = mediaType === "movie" ? 2 * 60 * 60 : 45 * 60;
-    const d =
-      typeof durationSeconds === "number" && durationSeconds > 0
-        ? durationSeconds
-        : fallbackDuration;
-    const progress = clampProgress((last_position / d) * 100);
-
-    lastSavedMs = now;
     await watchHistoryService.add(userId, {
       tmdb_id: tmdbId,
       type: mediaType,
       title,
       poster_path: posterPath ?? null,
-      progress,
-      duration: d,
-      last_position,
+      progress: 0,
+      duration: null as any,
+      last_position: null as any,
       season_number: mediaType === "tv" ? seasonNumber : undefined,
       episode_number: mediaType === "tv" ? episodeNumber : undefined,
       last_watched: new Date().toISOString(),
     });
-  };
-
-  const flushProgress = async () => {
-    try {
-      await saveProgress(true);
-    } catch {
-      // ignore
-    }
   };
 
   const loadUser = async () => {
@@ -398,25 +294,10 @@
     push(`/watch/tv/${tmdbId}/${seasonNumber}/${ep}`);
   };
 
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      pauseEstimator();
-      flushProgress();
-    } else {
-      resumeEstimator();
-    }
-  };
-
-  const handlePageHide = () => {
-    pauseEstimator();
-    flushProgress();
-  };
-
   const handleIframeLoad = () => {
     iframeLoaded = true;
     iframeTimedOut = false;
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
-    resumeEstimator();
   };
 
   const openInNewTab = () => {
@@ -437,7 +318,7 @@
         preferredServer,
         mediaType === "tv" ? seasonNumber : undefined,
         mediaType === "tv" ? episodeNumber : undefined,
-        startAt,
+        undefined,
       )
     : "";
 
@@ -447,7 +328,6 @@
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
     iframeTimeoutId = setTimeout(() => {
       iframeTimedOut = true;
-      pauseEstimator();
     }, 20_000);
   }
 
@@ -469,27 +349,13 @@
     }
   }
 
-  let estimatorKey = "";
-  let appliedStartAt = 0;
-  $: {
-    const k = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;
-    const s =
-      typeof startAt === "number" && Number.isFinite(startAt) && startAt > 0
-        ? Math.floor(startAt)
-        : 0;
-
-    if (k !== estimatorKey || s !== appliedStartAt) {
-      estimatorKey = k;
-      appliedStartAt = s;
-      hasUserInteracted = false;
-      resetEstimator(s);
-      lastSavedMs = 0;
-    }
-  }
-
   $: metaKey = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;
   $: if (tmdbId && Number.isFinite(tmdbId) && tmdbId > 0) {
     void loadMeta(metaKey);
+  }
+
+  $: if (userId && title && tmdbId && Number.isFinite(tmdbId) && tmdbId > 0) {
+    void recordOpened();
   }
 </script>
 
