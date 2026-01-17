@@ -8,7 +8,7 @@
   } from "../services/watchHistory";
   import { getPosterUrl } from "../services/tmdb";
   import { redirectToLogin } from "../lib/loginRedirect";
-  import { isPlayerServerKey } from "../services/playerServers";
+  import { isPlayerServerKey, isResumableServerKey } from "../services/playerServers";
   import { Play, X, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
 
   let loading = true;
@@ -63,7 +63,15 @@
         ? 0
         : rawStartAt;
     const server = readLastServerFor(it);
-    const serverQuery = server ? `?server=${encodeURIComponent(server)}` : "";
+    const effectiveServer =
+      startAt > 0
+        ? server && isResumableServerKey(server)
+          ? server
+          : ("server7" as const)
+        : server;
+    const serverQuery = effectiveServer
+      ? `?server=${encodeURIComponent(effectiveServer)}`
+      : "";
 
     if (it.type === "movie") {
       return startAt > 0

@@ -62,3 +62,7 @@ export const isPlayerServerKey = (value: string): value is PlayerServerKey => {
 export const getPlayerServerNumber = (key: PlayerServerKey): number => {
   return Number(key.replace('server', ''))
 }
+
+export const isResumableServerKey = (key: PlayerServerKey): boolean => {
+  return key === 'server7' || key === 'server8' || key === 'server27'
+}
