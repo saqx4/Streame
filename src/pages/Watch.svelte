@@ -44,6 +44,8 @@
   let playAccumulatedMs = 0;
   let playStartMs: number | null = null;
 
+  let hasUserInteracted = false;
+
   let metaKey = "";
   let metaReq = 0;
 
@@ -145,6 +147,9 @@
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("pagehide", handlePageHide);
     window.addEventListener("beforeunload", handlePageHide);
+    window.addEventListener("pointerdown", handleUserInteraction, { passive: true });
+    window.addEventListener("keydown", handleUserInteraction);
+    window.addEventListener("touchstart", handleUserInteraction, { passive: true });
 
     void loadUser();
     try {
@@ -168,6 +173,9 @@
     document.removeEventListener("visibilitychange", handleVisibilityChange);
     window.removeEventListener("pagehide", handlePageHide);
     window.removeEventListener("beforeunload", handlePageHide);
+    window.removeEventListener("pointerdown", handleUserInteraction as any);
+    window.removeEventListener("keydown", handleUserInteraction as any);
+    window.removeEventListener("touchstart", handleUserInteraction as any);
     if (intervalId) clearInterval(intervalId);
     if (iframeTimeoutId) clearTimeout(iframeTimeoutId);
     try {
@@ -210,8 +218,15 @@
   const canEstimatePlaying = () => {
     if (!iframeLoaded) return false;
     if (iframeTimedOut) return false;
+    if (!hasUserInteracted) return false;
     if (typeof document !== "undefined" && document.hidden) return false;
     return true;
+  };
+
+  const handleUserInteraction = () => {
+    if (hasUserInteracted) return;
+    hasUserInteracted = true;
+    resumeEstimator();
   };
 
   const pauseEstimator = () => {
@@ -252,6 +267,7 @@
     if (!userId) return;
     if (!tmdbId || !Number.isFinite(tmdbId) || tmdbId <= 0) return;
     if (!title) return;
+    if (!hasUserInteracted) return;
 
     savePerTitleServer(preferredServer);
 
@@ -453,13 +469,22 @@
     }
   }
 
-  $: if (
-    typeof startAt === "number" &&
-    Number.isFinite(startAt) &&
-    startAt >= 0
-  ) {
-    resetEstimator(startAt);
-    lastSavedMs = 0;
+  let estimatorKey = "";
+  let appliedStartAt = 0;
+  $: {
+    const k = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;
+    const s =
+      typeof startAt === "number" && Number.isFinite(startAt) && startAt > 0
+        ? Math.floor(startAt)
+        : 0;
+
+    if (k !== estimatorKey || s !== appliedStartAt) {
+      estimatorKey = k;
+      appliedStartAt = s;
+      hasUserInteracted = false;
+      resetEstimator(s);
+      lastSavedMs = 0;
+    }
   }
 
   $: metaKey = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;

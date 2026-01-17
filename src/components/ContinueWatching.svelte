@@ -52,10 +52,16 @@
   };
 
   const toHref = (it: WatchHistoryItem) => {
-    const startAt =
+    const rawStartAt =
       it.last_position && it.last_position > 0
         ? Math.floor(it.last_position)
         : 0;
+    const safeDuration =
+      typeof it.duration === "number" && it.duration > 0 ? it.duration : null;
+    const startAt =
+      safeDuration !== null && rawStartAt >= Math.max(0, safeDuration - 60)
+        ? 0
+        : rawStartAt;
     const server = readLastServerFor(it);
     const serverQuery = server ? `?server=${encodeURIComponent(server)}` : "";
 
@@ -217,7 +223,7 @@
       class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
     >
       {#each items as item (`${item.type}-${item.id}`)}
-        <div class="group relative flex-shrink-0 w-[200px] sm:w-[240px]">
+        <div class="group relative shrink-0 w-[200px] sm:w-[240px]">
           <a
             use:link
             href={item.href}
