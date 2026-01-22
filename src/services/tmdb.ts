@@ -423,6 +423,34 @@ export const getStreamingUrl = (
       } else {
         return `https://www.superembed.stream/embed/tv/${tmdbId}/${season}/${episode}`;
       }
+    case 'server33':
+      return type === 'movie'
+        ? `https://vidsrcme.ru/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrcme.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server34':
+      return type === 'movie'
+        ? `https://vidsrcme.su/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrcme.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server35':
+      return type === 'movie'
+        ? `https://vidsrc-me.ru/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrc-me.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server36':
+      return type === 'movie'
+        ? `https://vidsrc-me.su/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrc-me.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server37':
+      return type === 'movie'
+        ? `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server38':
+      return type === 'movie'
+        ? `https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`
+        : `https://vidsrc-embed.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+    case 'server39':
+      return type === 'movie'
+        ? `https://vsrc.su/embed/movie?tmdb=${tmdbId}`
+        : `https://vsrc.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
     default:
       return '';
   }

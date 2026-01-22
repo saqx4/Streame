@@ -24,6 +24,13 @@ export type PlayerServerKey =
   | 'server30'
   | 'server31'
   | 'server32'
+  | 'server33'
+  | 'server34'
+  | 'server35'
+  | 'server36'
+  | 'server37'
+  | 'server38'
+  | 'server39'
 
 export const playerServerOptions: { key: PlayerServerKey; label: string }[] = [
   { key: 'server7', label: '⭐ VidLink (JW) - Resumable' },
@@ -51,6 +58,13 @@ export const playerServerOptions: { key: PlayerServerKey; label: string }[] = [
   { key: 'server29', label: '111Movies' },
   { key: 'server30', label: 'VidFast' },
   { key: 'server32', label: 'SuperEmbed' },
+  { key: 'server33', label: 'Vidsrcme.ru' },
+  { key: 'server34', label: 'Vidsrcme.su' },
+  { key: 'server35', label: 'Vidsrc-me.ru' },
+  { key: 'server36', label: 'Vidsrc-me.su' },
+  { key: 'server37', label: 'Vidsrc-embed.ru (alt)' },
+  { key: 'server38', label: 'Vidsrc-embed.su' },
+  { key: 'server39', label: 'Vsrc.su' },
 ]
 
 const playerServerKeySet = new Set<PlayerServerKey>(playerServerOptions.map((s) => s.key))
