@@ -1,39 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { supabase, isSupabaseEnabled } from '../lib/supabaseClient'
-  import {
-    playerServerOptions,
-    type PlayerServerKey,
-    isPlayerServerKey,
-  } from '../services/playerServers'
   import { authUser, authLoading, signOut } from '../stores/auth'
   import { redirectToLogin } from '../lib/loginRedirect'
-  import { LogOut, LogIn, User, Cloud, Server as ServerIcon, ShieldCheck } from 'lucide-svelte'
-
-  const SERVER_KEY = 'streame:preferredServer'
-
-  let preferredServer: PlayerServerKey = 'server7'
+  import { LogOut, LogIn, User, Cloud, ShieldCheck } from 'lucide-svelte'
 
   let userEmail: string | null = null
   let loadingUser = true
-
-  const loadFromStorage = () => {
-    try {
-      const v = localStorage.getItem(SERVER_KEY)
-      if (v && isPlayerServerKey(v)) preferredServer = v
-    } catch {
-      // ignore
-    }
-  }
-
-  const setPreferredServer = (id: PlayerServerKey) => {
-    preferredServer = id
-    try {
-      localStorage.setItem(SERVER_KEY, id)
-    } catch {
-      // ignore
-    }
-  }
 
   const loadUser = async () => {
     loadingUser = true
@@ -50,7 +23,6 @@
   }
 
   onMount(() => {
-    loadFromStorage()
     loadUser()
   })
 </script>
@@ -59,36 +31,6 @@
   <div>
     <h1 class="text-2xl font-semibold">Settings</h1>
     <p class="mt-1 text-sm text-white/60">Customize your playback and UI preferences</p>
-  </div>
-
-  <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-    <div class="flex items-center gap-3 mb-6">
-      <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400/10 text-yellow-400">
-        <ServerIcon size={20} />
-      </div>
-      <div>
-        <div class="text-sm font-bold tracking-tight text-white">Playback Server</div>
-        <p class="text-[11px] text-white/40">Default server for the watch page</p>
-      </div>
-    </div>
-
-    <div class="grid gap-2 sm:grid-cols-2">
-      {#each playerServerOptions as s}
-        <button
-          class={`flex items-center justify-between rounded-2xl border px-4 py-3.5 text-left text-sm transition-all duration-200 ${
-            preferredServer === s.key
-              ? 'border-yellow-400/40 bg-yellow-400/10 text-yellow-200 shadow-[0_0_20px_-10px_rgba(250,204,21,0.5)]'
-              : 'border-white/5 bg-black/20 text-white/70 hover:bg-white/5 hover:border-white/10'
-          }`}
-          on:click={() => setPreferredServer(s.key)}
-        >
-          <span class="font-medium">{s.label}</span>
-          {#if preferredServer === s.key}
-            <div class="h-2 w-2 rounded-full bg-yellow-400 animate-pulse"></div>
-          {/if}
-        </button>
-      {/each}
-    </div>
   </div>
 
   <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">

@@ -21,7 +21,6 @@
 
   const route = derived(params, ($p) => $p as unknown as RouteParams);
 
-  const STORAGE_KEY = "streame:preferredServer";
   const PER_TITLE_SERVER_PREFIX = "streame:lastServer";
 
   let preferredServer: PlayerServerKey = "server7";
@@ -43,17 +42,6 @@
   let iframeLoaded = false;
   let iframeTimedOut = false;
   let iframeTimeoutId: any = null;
-
-  const loadPreferredServer = () => {
-    try {
-      const v = localStorage.getItem(STORAGE_KEY);
-      if (v && isPlayerServerKey(v)) {
-        preferredServer = v;
-      }
-    } catch {
-      // ignore
-    }
-  };
 
   const getPerTitleServerStorageKey = () => {
     if (!tmdbId || !Number.isFinite(tmdbId) || tmdbId <= 0) return null;
@@ -92,12 +80,6 @@
 
   const savePreferredServer = (id: PlayerServerKey) => {
     preferredServer = id;
-    try {
-      localStorage.setItem(STORAGE_KEY, id);
-    } catch {
-      // ignore
-    }
-
     savePerTitleServer(id);
   };
 
@@ -127,8 +109,6 @@
       serverFromQuery = undefined;
     }
   };
-
-  loadPreferredServer();
 
   onMount(() => {
     readQueryParams();

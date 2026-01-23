@@ -10,6 +10,17 @@
   let page = 1;
   let totalPages = 1;
   let selectedType: "all" | "movie" | "tv" = "all";
+  let selectedGenre: number | null = null;
+  let year: string = "";
+  let minRating: number = 0;
+  let sortBy:
+    | "relevance"
+    | "rating_desc"
+    | "rating_asc"
+    | "year_desc"
+    | "year_asc" = "relevance";
+
+  let filtersOpen = false;
 
   type SearchItem = any;
   let results: SearchItem[] = [];
@@ -101,6 +112,54 @@
       }
 
       results = normalize(res.results as any);
+
+      if (selectedGenre) {
+        results = results.filter((x) =>
+          Array.isArray(x.genre_ids) ? x.genre_ids.includes(selectedGenre) : false,
+        );
+      }
+
+      if (year.trim()) {
+        const y = year.trim();
+        results = results.filter((x) => {
+          const isMovie = x.media_type === "movie" || Boolean(x.title);
+          const raw = isMovie ? x.release_date : x.first_air_date;
+          const itemYear = raw ? String(raw).slice(0, 4) : "";
+          return itemYear === y;
+        });
+      }
+
+      if (minRating > 0) {
+        results = results.filter(
+          (x) => typeof x.vote_average === "number" && x.vote_average >= minRating,
+        );
+      }
+
+      if (sortBy !== "relevance") {
+        const getYear = (x: any) => {
+          const isMovie = x.media_type === "movie" || Boolean(x.title);
+          const raw = isMovie ? x.release_date : x.first_air_date;
+          const v = raw ? Number(String(raw).slice(0, 4)) : NaN;
+          return Number.isFinite(v) ? v : 0;
+        };
+
+        results = [...results].sort((a: any, b: any) => {
+          if (sortBy === "rating_desc") {
+            return (b.vote_average ?? 0) - (a.vote_average ?? 0);
+          }
+          if (sortBy === "rating_asc") {
+            return (a.vote_average ?? 0) - (b.vote_average ?? 0);
+          }
+          if (sortBy === "year_desc") {
+            return getYear(b) - getYear(a);
+          }
+          if (sortBy === "year_asc") {
+            return getYear(a) - getYear(b);
+          }
+          return 0;
+        });
+      }
+
       page = res.page;
       totalPages = res.total_pages;
     } catch (e: any) {
@@ -123,7 +182,7 @@
     }
   };
 
-  $: query, selectedType, scheduleSearch();
+  $: query, selectedType, selectedGenre, year, minRating, sortBy, scheduleSearch();
 
   onDestroy(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -132,7 +191,7 @@
 
 <div class="flex flex-col items-center gap-10 py-6">
   <!-- Search Bar Section -->
-  <div class="flex w-full flex-col items-center gap-6">
+  <div class="flex w-full flex-col items-center gap-4">
     <div class="relative w-full max-w-[500px]">
       <input
         type="text"
@@ -149,7 +208,8 @@
     </div>
 
     <!-- Tabs Section -->
-    <div class="flex items-center gap-3">
+    <div class="flex w-full max-w-[900px] flex-col gap-3">
+      <div class="flex flex-wrap items-center justify-center gap-3">
       <button
         class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
           selectedType === "all"
@@ -185,6 +245,92 @@
         <Tv size={14} />
         TV Shows
       </button>
+      </div>
+
+      <div class="flex items-center justify-center gap-2">
+        <button
+          class={`rounded-xl border px-4 py-2 text-xs font-bold transition-all ${
+            filtersOpen
+              ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
+              : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+          }`}
+          on:click={() => (filtersOpen = !filtersOpen)}
+        >
+          Filters
+        </button>
+
+        {#if selectedGenre || year.trim() || minRating > 0 || sortBy !== "relevance"}
+          <button
+            class="rounded-xl border border-white/5 bg-zinc-900/50 px-4 py-2 text-xs font-bold text-zinc-500 transition-all hover:bg-zinc-900 hover:text-zinc-300"
+            on:click={() => {
+              selectedGenre = null;
+              year = "";
+              minRating = 0;
+              sortBy = "relevance";
+            }}
+          >
+            Clear
+          </button>
+        {/if}
+      </div>
+
+      {#if filtersOpen}
+        <div class="w-full rounded-2xl border border-white/5 bg-zinc-900/40 p-3">
+          <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Genre</div>
+              <select
+                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                bind:value={selectedGenre}
+              >
+                <option value={null}>All</option>
+                {#each Object.entries(genreMap) as [id, name]}
+                  <option value={Number(id)}>{name}</option>
+                {/each}
+              </select>
+            </div>
+
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Year</div>
+              <input
+                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                inputmode="numeric"
+                placeholder="2024"
+                maxlength="4"
+                bind:value={year}
+              />
+            </div>
+
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Min rating</div>
+              <select
+                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                bind:value={minRating}
+              >
+                <option value={0}>Any</option>
+                <option value={5}>5+</option>
+                <option value={6}>6+</option>
+                <option value={7}>7+</option>
+                <option value={8}>8+</option>
+              </select>
+            </div>
+
+            <div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Sort</div>
+              <select
+                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                bind:value={sortBy}
+              >
+                <option value="relevance">Relevance</option>
+                <option value="rating_desc">Rating (high to low)</option>
+                <option value="rating_asc">Rating (low to high)</option>
+                <option value="year_desc">Year (new to old)</option>
+                <option value="year_asc">Year (old to new)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 

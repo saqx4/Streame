@@ -6,6 +6,7 @@
     watchHistoryService,
     type WatchHistoryItem,
   } from "../services/watchHistory";
+  import { isPlayerServerKey, type PlayerServerKey } from "../services/playerServers";
   import { getPosterUrl } from "../services/tmdb";
   import { redirectToLogin } from "../lib/loginRedirect";
   import { Play, X, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
@@ -29,18 +30,49 @@
     posterPath: string | null;
     href: string;
     meta?: string | null;
+    progressPct?: number;
+    remainingLabel?: string | null;
   };
 
   let items: Item[] = [];
 
+  const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+
+  const formatRemaining = (seconds: number): string => {
+    const s = Math.max(0, Math.floor(seconds));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    if (h > 0) return `${h}h ${m}m left`;
+    return `${m}m left`;
+  };
+
+  const PER_TITLE_SERVER_PREFIX = "streame:lastServer";
+
+  const readPerTitleServer = (it: WatchHistoryItem): PlayerServerKey | undefined => {
+    try {
+      const key =
+        it.type === "tv"
+          ? `${PER_TITLE_SERVER_PREFIX}:${it.type}:${it.tmdb_id}:${it.season_number ?? 1}:${it.episode_number ?? 1}`
+          : `${PER_TITLE_SERVER_PREFIX}:${it.type}:${it.tmdb_id}`;
+      const v = localStorage.getItem(key);
+      return v && isPlayerServerKey(v) ? (v as PlayerServerKey) : undefined;
+    } catch {
+      return undefined;
+    }
+  };
+
   const toHref = (it: WatchHistoryItem) => {
     if (it.type === "movie") {
-      return `/watch/movie/${it.tmdb_id}`;
+      const base = `/watch/movie/${it.tmdb_id}`;
+      const server = readPerTitleServer(it);
+      return server ? `${base}?server=${encodeURIComponent(server)}` : base;
     }
 
     const s = it.season_number ?? 1;
     const e = it.episode_number ?? 1;
-    return `/watch/tv/${it.tmdb_id}/${s}/${e}`;
+    const base = `/watch/tv/${it.tmdb_id}/${s}/${e}`;
+    const server = readPerTitleServer(it);
+    return server ? `${base}?server=${encodeURIComponent(server)}` : base;
   };
 
   const dedupeLatest = (history: WatchHistoryItem[]) => {
@@ -102,6 +134,19 @@
           h.type === "tv"
             ? `S${h.season_number ?? 1} E${h.episode_number ?? 1}`
             : null,
+        progressPct: (() => {
+          const raw = typeof h.progress === "number" ? h.progress : 0;
+          const pct = raw <= 1 ? raw * 100 : raw;
+          return clamp(Number.isFinite(pct) ? pct : 0, 0, 100);
+        })(),
+        remainingLabel: (() => {
+          const dur = typeof h.duration === "number" ? h.duration : null;
+          const pos = typeof h.last_position === "number" ? h.last_position : null;
+          if (dur && dur > 0 && pos !== null && pos >= 0 && pos <= dur) {
+            return formatRemaining(dur - pos);
+          }
+          return null;
+        })(),
       }));
     } catch (e: any) {
       console.error("Failed to load Continue Watching", e);
@@ -225,6 +270,20 @@
                   <span class="text-xs text-white/60">{item.meta}</span>
                 {/if}
               </div>
+
+              {#if typeof item.progressPct === 'number' && item.progressPct > 0}
+                <div class="mt-2 space-y-1">
+                  <div class="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                    <div
+                      class="h-full rounded-full bg-yellow-400"
+                      style={`width: ${item.progressPct}%;`}
+                    ></div>
+                  </div>
+                  {#if item.remainingLabel}
+                    <div class="text-[11px] text-white/40">{item.remainingLabel}</div>
+                  {/if}
+                </div>
+              {/if}
             </div>
           </a>
 

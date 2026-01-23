@@ -313,29 +313,11 @@ export const getStreamingUrl = (
       } else {
         return `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
       }
-    case 'server2':
-      if (type === 'movie') {
-        return `https://vidsrc.win/embed/movie/${tmdbId}`;  // Updated to vidsrc.win
-      } else {
-        return `https://vidsrc.win/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-    case 'server3':
-      if (type === 'movie') {
-        return `https://vidsrc.icu/embed/movie?tmdb=${tmdbId}`;  // Retained/confirmed variant
-      } else {
-        return `https://vidsrc.icu/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-      }
     case 'server4':
       if (type === 'movie') {
         return `https://2embed.ru/embed/movie/${tmdbId}`;  // Updated domain
       } else {
         return `https://2embed.ru/embedtv/${tmdbId}&s=${season}&e=${episode}`;
-      }
-    case 'server5':
-      if (type === 'movie') {
-        return `https://player.videasy.co/movie/${tmdbId}`;  // Minor TLD update for reliability
-      } else {
-        return `https://player.videasy.co/tv/${tmdbId}/${season}/${episode}`;
       }
     case 'server6':
       if (type === 'movie') {
@@ -355,22 +337,10 @@ export const getStreamingUrl = (
       const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
       return start > 0 ? `${base}&startAt=${start}` : base;
     }
-    case 'server9':
-      return type === 'movie'
-        ? `https://embed.su/embed/movie/${tmdbId}`  // Confirmed working
-        : `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server10':
       return type === 'movie'
         ? `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`
         : `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
-    case 'server11':
-      return type === 'movie'
-        ? `https://filmku.io/embed/${tmdbId}`  // TLD update
-        : `https://filmku.io/embed/series?tmdb=${tmdbId}&sea=${season}&epi=${episode}`;
-    case 'server12':
-      return type === 'movie'
-        ? `https://nontongo.net/embed/movie/${tmdbId}`  // TLD update
-        : `https://nontongo.net/embed/tv/${tmdbId}/${season}/${episode}`;
     case 'server13':
       return type === 'movie'
         ? `https://autoembed.co/movie/tmdb/${tmdbId}`
@@ -401,10 +371,6 @@ export const getStreamingUrl = (
       const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
       return start > 0 ? `${base}&startAt=${start}` : base;
     }
-    case 'server28':
-      return type === 'movie'
-        ? `https://www.embedsoap.com/embed/movie/?id=${tmdbId}`
-        : `https://www.embedsoap.com/embed/tv/?id=${tmdbId}&s=${season}&e=${episode}`;
     case 'server29':
       return type === 'movie'
         ? `https://111movies.to/movie/${tmdbId}`  // TLD update
@@ -425,32 +391,28 @@ export const getStreamingUrl = (
       }
     case 'server33':
       return type === 'movie'
-        ? `https://vidsrcme.ru/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrcme.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vidsrcme.ru/embed/movie/${tmdbId}`
+        : `https://vidsrcme.ru/embed/tv/${tmdbId}/${season}-${episode}`;
     case 'server34':
       return type === 'movie'
-        ? `https://vidsrcme.su/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrcme.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vidsrcme.su/embed/movie/${tmdbId}`
+        : `https://vidsrcme.su/embed/tv/${tmdbId}/${season}-${episode}`;
     case 'server35':
       return type === 'movie'
-        ? `https://vidsrc-me.ru/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrc-me.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vidsrc-me.ru/embed/movie/${tmdbId}`
+        : `https://vidsrc-me.ru/embed/tv/${tmdbId}/${season}-${episode}`;
     case 'server36':
       return type === 'movie'
-        ? `https://vidsrc-me.su/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrc-me.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-    case 'server37':
-      return type === 'movie'
-        ? `https://vidsrc-embed.ru/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrc-embed.ru/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vidsrc-me.su/embed/movie/${tmdbId}`
+        : `https://vidsrc-me.su/embed/tv/${tmdbId}/${season}-${episode}`;
     case 'server38':
       return type === 'movie'
-        ? `https://vidsrc-embed.su/embed/movie?tmdb=${tmdbId}`
-        : `https://vidsrc-embed.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vidsrc-embed.su/embed/movie/${tmdbId}`
+        : `https://vidsrc-embed.su/embed/tv/${tmdbId}/${season}-${episode}`;
     case 'server39':
       return type === 'movie'
-        ? `https://vsrc.su/embed/movie?tmdb=${tmdbId}`
-        : `https://vsrc.su/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
+        ? `https://vsrc.su/embed/movie/${tmdbId}`
+        : `https://vsrc.su/embed/tv/${tmdbId}/${season}-${episode}`;
     default:
       return '';
   }
