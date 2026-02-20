@@ -2,7 +2,21 @@
     import { link } from "svelte-spa-router";
     import { fade, scale } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
-    import { Play, Bookmark, Share2, Film } from "lucide-svelte";
+    import {
+        Play,
+        Bookmark,
+        Share2,
+        Film,
+        Calendar,
+        Clock,
+        Clapperboard,
+        Tv,
+        Activity,
+        Layers,
+        Globe,
+        MapPin,
+        Building2,
+    } from "lucide-svelte";
     import {
         getBackdropUrl,
         getPosterUrl,
@@ -386,9 +400,6 @@
                         on:click={() => (activeTab = tab.id)}
                     >
                         {tab.label}
-                        {#if activeTab === tab.id}
-                            <div class="tab-indicator"></div>
-                        {/if}
                     </button>
                 {/each}
             </nav>
@@ -397,73 +408,100 @@
             <div class="tab-content">
                 {#if activeTab === "overview"}
                     <div class="overview-content">
-                        <p class="overview-text">{item.overview}</p>
+                        {#if item.tagline}
+                            <p class="tagline">"{item.tagline}"</p>
+                        {/if}
+                        <p class="overview-text">{item.overview || "No overview available."}</p>
 
                         <div class="metadata-grid">
-                            <div class="meta-item">
-                                <span class="meta-label">Release</span>
-                                <span class="meta-value">
-                                    {item.release_date ||
-                                        item.first_air_date ||
-                                        "—"}
-                                </span>
+                            <div class="meta-card">
+                                <div class="meta-icon"><Calendar size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Release Date</span>
+                                    <span class="meta-value">
+                                        {item.release_date || item.first_air_date || "—"}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="meta-item">
-                                <span class="meta-label">Runtime</span>
-                                <span class="meta-value">
-                                    {formatRuntime(
-                                        item.runtime ||
-                                            (item.episode_run_time
-                                                ? item.episode_run_time[0]
-                                                : 0),
-                                    )}
-                                </span>
+                            <div class="meta-card">
+                                <div class="meta-icon"><Clock size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Runtime</span>
+                                    <span class="meta-value">
+                                        {formatRuntime(item.runtime || (item.episode_run_time ? item.episode_run_time[0] : 0))}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="meta-item">
-                                <span class="meta-label">Genre</span>
-                                <span class="meta-value">
-                                    {item.genres
-                                        ?.map((g: any) => g.name)
-                                        .join(", ") || "—"}
-                                </span>
+                            <div class="meta-card">
+                                <div class="meta-icon"><Clapperboard size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Genre</span>
+                                    <span class="meta-value genres">
+                                        {item.genres?.map((g: any) => g.name).join(", ") || "—"}
+                                    </span>
+                                </div>
                             </div>
 
-                            {#if item.belongs_to_collection}
-                                <div class="meta-item">
-                                    <span class="meta-label">Collection</span>
-                                    <span class="meta-value"
-                                        >{item.belongs_to_collection.name}</span
-                                    >
+                            {#if item.number_of_seasons}
+                                <div class="meta-card">
+                                    <div class="meta-icon"><Tv size={16} /></div>
+                                    <div class="meta-info">
+                                        <span class="meta-label">Seasons</span>
+                                        <span class="meta-value">{item.number_of_seasons} ({item.number_of_episodes} episodes)</span>
+                                    </div>
                                 </div>
                             {/if}
 
-                            <div class="meta-item">
-                                <span class="meta-label">Languages</span>
-                                <span class="meta-value">
-                                    {item.spoken_languages
-                                        ?.map((l: any) => l.name)
-                                        .join(", ") || "—"}
-                                </span>
+                            {#if item.status}
+                                <div class="meta-card">
+                                    <div class="meta-icon"><Activity size={16} /></div>
+                                    <div class="meta-info">
+                                        <span class="meta-label">Status</span>
+                                        <span class="meta-value">{item.status}</span>
+                                    </div>
+                                </div>
+                            {/if}
+
+                            {#if item.belongs_to_collection}
+                                <div class="meta-card full-width">
+                                    <div class="meta-icon"><Layers size={16} /></div>
+                                    <div class="meta-info">
+                                        <span class="meta-label">Collection</span>
+                                        <span class="meta-value">{item.belongs_to_collection.name}</span>
+                                    </div>
+                                </div>
+                            {/if}
+
+                            <div class="meta-card">
+                                <div class="meta-icon"><Globe size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Languages</span>
+                                    <span class="meta-value">
+                                        {item.spoken_languages?.slice(0, 3).map((l: any) => l.english_name || l.name).join(", ") || "—"}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="meta-item">
-                                <span class="meta-label">Countries</span>
-                                <span class="meta-value">
-                                    {item.production_countries
-                                        ?.map((c: any) => c.name)
-                                        .join(", ") || "—"}
-                                </span>
+                            <div class="meta-card">
+                                <div class="meta-icon"><MapPin size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Countries</span>
+                                    <span class="meta-value">
+                                        {item.production_countries?.slice(0, 2).map((c: any) => c.name).join(", ") || "—"}
+                                    </span>
+                                </div>
                             </div>
 
-                            <div class="meta-item full-width">
-                                <span class="meta-label">Production</span>
-                                <span class="meta-value">
-                                    {item.production_companies
-                                        ?.map((c: any) => c.name)
-                                        .join(", ") || "—"}
-                                </span>
+                            <div class="meta-card full-width">
+                                <div class="meta-icon"><Building2 size={16} /></div>
+                                <div class="meta-info">
+                                    <span class="meta-label">Production</span>
+                                    <span class="meta-value">
+                                        {item.production_companies?.slice(0, 3).map((c: any) => c.name).join(", ") || "—"}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -783,51 +821,45 @@
 
     .tabs-container {
         background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         border-radius: 28px;
         border: 1px solid rgba(255, 255, 255, 0.06);
         padding: 1.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
     .tab-nav {
         display: flex;
-        gap: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        padding-bottom: 0.75rem;
+        gap: 0.5rem;
+        padding-bottom: 1rem;
         margin-bottom: 1.5rem;
         overflow-x: auto;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
     .tab-btn {
-        position: relative;
-        background: none;
-        border: none;
-        padding: 0.5rem 0;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.4);
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.5);
         cursor: pointer;
         white-space: nowrap;
-        transition: color 0.2s;
+        border-radius: 10px;
+        transition: all 0.2s ease;
     }
 
     .tab-btn:hover {
-        color: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.8);
     }
 
     .tab-btn.active {
+        background: rgba(250, 204, 21, 0.15);
+        border-color: rgba(250, 204, 21, 0.3);
         color: #facc15;
-    }
-
-    .tab-indicator {
-        position: absolute;
-        bottom: -0.75rem;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #facc15;
-        border-radius: 1px;
     }
 
     .tab-content {
@@ -853,20 +885,29 @@
     .overview-content {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1.25rem;
+    }
+
+    .tagline {
+        font-size: 0.9375rem;
+        font-style: italic;
+        color: rgba(250, 204, 21, 0.7);
+        margin: 0;
+        padding-left: 0.5rem;
+        border-left: 2px solid rgba(250, 204, 21, 0.3);
     }
 
     .overview-text {
         font-size: 0.9375rem;
         line-height: 1.7;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.75);
         margin: 0;
     }
 
     .metadata-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        gap: 0.75rem;
     }
 
     @media (min-width: 640px) {
@@ -875,27 +916,61 @@
         }
     }
 
-    .meta-item {
+    .meta-card {
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.875rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 14px;
+        transition: all 0.2s ease;
     }
 
-    .meta-item.full-width {
+    .meta-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .meta-card.full-width {
         grid-column: 1 / -1;
     }
 
+    .meta-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 10px;
+        background: rgba(250, 204, 21, 0.08);
+        color: rgba(250, 204, 21, 0.9);
+        flex-shrink: 0;
+    }
+
+    .meta-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+        min-width: 0;
+    }
+
     .meta-label {
-        font-size: 0.6875rem;
+        font-size: 0.625rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: rgba(255, 255, 255, 0.4);
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.35);
     }
 
     .meta-value {
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         font-weight: 500;
-        color: #60a5fa;
+        color: rgba(255, 255, 255, 0.85);
+        line-height: 1.3;
+    }
+
+    .meta-value.genres {
+        color: #facc15;
     }
 </style>

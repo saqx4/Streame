@@ -10,7 +10,7 @@
   } from "../services/playerServers";
   import { supabase, isSupabaseEnabled } from "../lib/supabaseClient";
   import { watchHistoryService } from "../services/watchHistory";
-  import { ArrowLeft, ChevronLeft, ChevronRight, Server, ExternalLink, RefreshCw } from "lucide-svelte";
+  import { ArrowLeft, ChevronLeft, ChevronRight, Server, ExternalLink, RefreshCw, ChevronDown, Check } from "lucide-svelte";
 
   type RouteParams = {
     type?: "movie" | "tv";
@@ -42,6 +42,9 @@
   let iframeLoaded = false;
   let iframeTimedOut = false;
   let iframeTimeoutId: any = null;
+
+  let serverPickerOpen = false;
+  let serverPickerEl: HTMLDivElement | null = null;
 
   const getPerTitleServerStorageKey = () => {
     if (!tmdbId || !Number.isFinite(tmdbId) || tmdbId <= 0) return null;
@@ -114,6 +117,13 @@
     readQueryParams();
     window.addEventListener("hashchange", readQueryParams);
 
+    const onDocClick = (e: MouseEvent) => {
+      const t = e.target as Node | null;
+      if (!serverPickerOpen) return;
+      if (serverPickerEl && t && !serverPickerEl.contains(t)) serverPickerOpen = false;
+    };
+    document.addEventListener("mousedown", onDocClick);
+
     void loadUser();
     try {
       if (isSupabaseEnabled) {
@@ -126,6 +136,9 @@
       authSub = null;
     }
 
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+    };
   });
 
   onDestroy(() => {
@@ -368,27 +381,62 @@
     </div>
 
     <!-- Server Selector -->
-    <div class="relative group min-w-[180px]">
-      <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none text-white/40">
-        <Server size={14} />
-      </div>
-      <select
-        class="w-full appearance-none rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-10 text-sm font-medium text-white transition-all hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
-        value={preferredServer}
-        on:change={(e) => {
-          const val = e.currentTarget.value;
-          if (isPlayerServerKey(val)) savePreferredServer(val);
-        }}
+    <div class="relative min-w-[220px]" bind:this={serverPickerEl}>
+      <button
+        type="button"
+        class="group flex w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-[0.98]"
+        aria-haspopup="listbox"
+        aria-expanded={serverPickerOpen}
+        on:click={() => (serverPickerOpen = !serverPickerOpen)}
       >
-        {#each playerServerOptions as s}
-          <option value={s.key} class="bg-zinc-900 text-white">
-            {s.label}
-          </option>
-        {/each}
-      </select>
-      <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-white/40">
-        <ChevronRight size={14} class="rotate-90" />
-      </div>
+        <span class="flex items-center gap-2 min-w-0">
+          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-white/50 ring-1 ring-white/10">
+            <Server size={16} />
+          </span>
+          <span class="min-w-0">
+            <span class="block text-[10px] font-bold uppercase tracking-widest text-white/30">Server</span>
+            <span class="block line-clamp-1 text-white/85">
+              {playerServerOptions.find((s) => s.key === preferredServer)?.label || preferredServer}
+            </span>
+          </span>
+        </span>
+        <ChevronDown
+          size={16}
+          class={`text-white/40 transition-transform ${serverPickerOpen ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {#if serverPickerOpen}
+        <div
+          class="absolute right-0 top-[calc(100%+10px)] z-30 w-[420px] max-w-[92vw] overflow-hidden rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl"
+          role="listbox"
+        >
+          <div class="overscroll-contain max-h-[380px] overflow-auto p-2">
+            {#each playerServerOptions as s}
+              {@const isActive = s.key === preferredServer}
+              <button
+                type="button"
+                class={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all ${
+                  isActive
+                    ? "bg-yellow-400/10 text-yellow-300 ring-1 ring-yellow-400/20"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                }`}
+                on:click={() => {
+                  if (isPlayerServerKey(s.key)) savePreferredServer(s.key);
+                  serverPickerOpen = false;
+                }}
+              >
+                <span class="line-clamp-1">{s.label}</span>
+                {#if isActive}
+                  <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
+                    <Check size={16} />
+                  </span>
+                {/if}
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
     </div>
   </div>
 

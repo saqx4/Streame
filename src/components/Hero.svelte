@@ -224,7 +224,7 @@
 
 {#if current}
   <div
-    class="relative h-[450px] w-full overflow-hidden rounded-[40px] bg-zinc-950 ring-1 ring-white/10 sm:h-[550px]"
+    class="relative h-[450px] w-full overflow-hidden rounded-[40px] bg-zinc-950 ring-1 ring-white/5 sm:h-[550px]"
   >
     <!-- Backdrop -->
     <div class="absolute inset-0">
@@ -233,20 +233,24 @@
           <img
             src={getBackdropUrl(current.backdropPath, "original")}
             alt={current.title}
-            class="h-full w-full object-cover"
-            in:fade={{ duration: 450 }}
-            out:fade={{ duration: 350 }}
+            class="h-full w-full object-cover scale-105"
+            in:fade={{ duration: 600 }}
+            out:fade={{ duration: 400 }}
           />
         {/if}
       {/key}
-      <!-- Gradients -->
+      <!-- Enhanced Gradients -->
       <div
-        class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-black/80"
+        class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black"
       ></div>
       <div
-        class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"
+        class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"
       ></div>
-      <div class="absolute inset-0 bg-black/20"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black"></div>
+      <!-- Radial vignette -->
+      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_black_100%)] opacity-40"></div>
+      <!-- Noise texture overlay -->
+      <div class="absolute inset-0 opacity-[0.015] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]"></div>
     </div>
 
     <!-- Content -->
@@ -254,8 +258,8 @@
       {#key current.id}
         <div
           class="flex flex-col items-center gap-6"
-          in:fly={{ y: 10, duration: 420 }}
-          out:fade={{ duration: 240 }}
+          in:fly={{ y: 20, duration: 500 }}
+          out:fade={{ duration: 300 }}
         >
           <!-- Title/Logo Area -->
           <div
@@ -265,11 +269,11 @@
               <img
                 src={logoUrl}
                 alt={current.title}
-                class="max-h-full max-w-[280px] object-contain drop-shadow-2xl sm:max-w-[400px]"
+                class="max-h-full max-w-[280px] object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] sm:max-w-[400px]"
               />
             {:else}
               <h2
-                class="text-2xl font-extrabold text-white drop-shadow-lg sm:text-4xl lg:text-5xl"
+                class="text-2xl font-extrabold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-5xl"
               >
                 {current.title}
               </h2>
@@ -278,21 +282,21 @@
 
           <!-- Floating Control Bar -->
           <div
-            class="flex items-center gap-1.5 rounded-[20px] bg-black/40 p-1.5 backdrop-blur-2xl ring-1 ring-white/10 shadow-2xl sm:gap-2 sm:rounded-[24px] sm:p-2"
+            class="flex items-center gap-1.5 rounded-[24px] bg-black/50 p-1.5 backdrop-blur-3xl ring-1 ring-white/10 shadow-2xl shadow-black/50 sm:gap-2 sm:rounded-[28px] sm:p-2"
           >
             <a
               use:link
               {href}
-              class="flex h-9 items-center gap-1.5 rounded-xl bg-yellow-400 px-3 text-xs font-black text-black shadow-lg shadow-yellow-400/20 transition-transform hover:scale-105 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
+              class="group flex h-9 items-center gap-1.5 rounded-xl bg-yellow-400 px-4 text-xs font-black text-black shadow-lg shadow-yellow-400/30 transition-all hover:shadow-yellow-400/50 hover:scale-105 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
             >
-              <Play size={16} fill="currentColor" />
+              <Play size={16} fill="currentColor" class="transition-transform group-hover:translate-x-0.5" />
               Watch
             </a>
 
             <a
               use:link
               {href}
-              class="flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 text-xs font-black text-white/90 transition-transform hover:bg-white/10 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
+              class="flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-bold text-white/90 transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
             >
               Details
             </a>
@@ -302,8 +306,8 @@
             <button
               class={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all active:scale-95 sm:h-11 sm:w-11 ${
                 isInWatchlist
-                  ? "border-yellow-400/30 bg-yellow-400/10 text-yellow-300 hover:bg-yellow-400/15"
-                  : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white"
+                  ? "border-yellow-400/40 bg-yellow-400/15 text-yellow-300 hover:bg-yellow-400/25"
+                  : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
               } ${watchlistBusy ? "opacity-60" : ""}`}
               on:click={toggleWatchlist}
               aria-label="Toggle watchlist"
@@ -313,7 +317,7 @@
 
             <button
               on:click={handleShare}
-              class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition-all active:scale-95 sm:h-11 sm:w-11"
+              class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95 sm:h-11 sm:w-11"
             >
               <Share2 size={18} />
             </button>
@@ -322,13 +326,13 @@
       {/key}
 
       {#if heroItems().length > 1}
-        <div class="mt-6 flex items-center gap-2">
+        <div class="mt-8 flex items-center gap-2">
           {#each heroItems() as it, i (it.id)}
             <button
-              class={`h-2.5 w-2.5 rounded-full ring-1 ring-white/15 transition-all ${
+              class={`h-2 rounded-full transition-all duration-300 ${
                 i === safeIndex
-                  ? "bg-white/80"
-                  : "bg-white/20 hover:bg-white/35"
+                  ? "w-8 bg-yellow-400 shadow-lg shadow-yellow-400/30"
+                  : "w-2 bg-white/20 hover:bg-white/40"
               }`}
               on:click={() => (index = i)}
               aria-label={`Hero item ${i + 1}`}

@@ -78,10 +78,13 @@
 <div class="fixed inset-0 z-[-1] overflow-hidden">
   <div class="absolute inset-0 bg-[#050505]"></div>
   <div 
-    class="absolute inset-0 opacity-20 bg-cover bg-center bg-no-repeat blur-sm scale-110"
+    class="absolute inset-0 opacity-30 bg-cover bg-center bg-no-repeat blur-sm scale-110"
     style="background-image: url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop');"
   ></div>
-  <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/80 to-transparent"></div>
+  <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-[#050505]/70"></div>
+  <!-- Animated gradient orbs -->
+  <div class="absolute top-1/4 -left-20 w-80 h-80 bg-yellow-400/20 rounded-full blur-[100px] animate-pulse"></div>
+  <div class="absolute bottom-1/4 -right-20 w-80 h-80 bg-yellow-400/10 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s;"></div>
 </div>
 
 <section class="min-h-[80vh] flex items-center justify-center p-4">
@@ -91,16 +94,20 @@
   >
     <!-- Logo/Brand area -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-yellow-400 mb-4 shadow-[0_0_40px_-5px_rgba(250,204,21,0.4)]">
+      <div class="inline-flex items-center justify-center h-16 w-16 rounded-2xl bg-yellow-400 mb-4 shadow-[0_0_60px_-10px_rgba(250,204,21,0.5)] pulse-glow">
         <Sparkles size={32} class="text-black" />
       </div>
       <h1 class="text-3xl font-black tracking-tighter text-white uppercase italic">Streame</h1>
-      <p class="text-white/40 text-sm mt-1 font-medium">Elevate your streaming experience</p>
+      <p class="text-white/30 text-sm mt-1 font-medium">Elevate your streaming experience</p>
     </div>
 
-    <div class="rounded-[32px] border border-white/10 bg-black/40 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden relative">
+    <div class="rounded-[32px] border border-white/5 bg-black/50 p-6 sm:p-10 backdrop-blur-3xl shadow-2xl overflow-hidden relative">
       <!-- Top Accent -->
-      <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
+      
+      <!-- Corner accents -->
+      <div class="absolute top-0 left-0 w-20 h-20 border-l border-t border-yellow-400/20 rounded-tl-[32px]"></div>
+      <div class="absolute top-0 right-0 w-20 h-20 border-r border-t border-yellow-400/20 rounded-tr-[32px]"></div>
 
       <div class="flex items-center justify-between mb-8">
         <h2 class="text-xl font-bold text-white tracking-tight">
@@ -118,16 +125,16 @@
 
       <div class="grid grid-cols-2 gap-2 rounded-2xl bg-white/5 p-1 border border-white/5 mb-8">
         <button
-          class={`rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-            mode === 'signin' ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/10' : 'text-white/40 hover:text-white/70'
+          class={`rounded-xl py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+            mode === 'signin' ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/20' : 'text-white/40 hover:text-white/70'
           }`}
           on:click={() => (mode = 'signin')}
         >
           Sign in
         </button>
         <button
-          class={`rounded-xl py-2.5 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
-            mode === 'signup' ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/10' : 'text-white/40 hover:text-white/70'
+          class={`rounded-xl py-3 text-xs font-bold uppercase tracking-wider transition-all duration-300 ${
+            mode === 'signup' ? 'bg-yellow-400 text-black shadow-lg shadow-yellow-400/20' : 'text-white/40 hover:text-white/70'
           }`}
           on:click={() => (mode = 'signup')}
         >
@@ -159,12 +166,12 @@
         <div class="space-y-2">
           <label for="login-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Email Address</label>
           <div class="relative group">
-            <div class="absolute inset-y-0 left-4 flex items-center text-white/20 group-focus-within:text-yellow-400/50 transition-colors">
+            <div class="absolute inset-y-0 left-4 flex items-center text-white/20 group-focus-within:text-yellow-400/60 transition-colors">
               <Mail size={16} />
             </div>
             <input
               id="login-email"
-              class="w-full rounded-2xl border border-white/5 bg-white/5 pl-12 pr-4 py-4 text-sm text-white outline-none transition-all focus:border-yellow-400/40 focus:bg-white/[0.08] focus:ring-4 focus:ring-yellow-400/5"
+              class="w-full rounded-2xl border border-white/5 bg-white/5 pl-12 pr-4 py-4 text-sm text-white outline-none transition-all focus:border-yellow-400/40 focus:bg-white/[0.08] focus:ring-4 focus:ring-yellow-400/10"
               type="email"
               bind:value={email}
               placeholder="name@example.com"
@@ -176,12 +183,12 @@
         <div class="space-y-2">
           <label for="login-password" class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Secure Password</label>
           <div class="relative group">
-            <div class="absolute inset-y-0 left-4 flex items-center text-white/20 group-focus-within:text-yellow-400/50 transition-colors">
+            <div class="absolute inset-y-0 left-4 flex items-center text-white/20 group-focus-within:text-yellow-400/60 transition-colors">
               <Lock size={16} />
             </div>
             <input
               id="login-password"
-              class="w-full rounded-2xl border border-white/5 bg-white/5 pl-12 pr-4 py-4 text-sm text-white outline-none transition-all focus:border-yellow-400/40 focus:bg-white/[0.08] focus:ring-4 focus:ring-yellow-400/5"
+              class="w-full rounded-2xl border border-white/5 bg-white/5 pl-12 pr-4 py-4 text-sm text-white outline-none transition-all focus:border-yellow-400/40 focus:bg-white/[0.08] focus:ring-4 focus:ring-yellow-400/10"
               type="password"
               bind:value={password}
               placeholder="••••••••"
@@ -191,7 +198,7 @@
         </div>
 
         <button
-          class="group relative mt-4 h-14 w-full overflow-hidden rounded-2xl bg-yellow-400 font-black text-black shadow-[0_20px_40px_-10px_rgba(250,204,21,0.3)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+          class="group relative mt-4 h-14 w-full overflow-hidden rounded-2xl bg-yellow-400 font-black text-black shadow-[0_20px_40px_-10px_rgba(250,204,21,0.4)] transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
           on:click={submit}
           disabled={loading || $authLoading}
         >
@@ -203,7 +210,7 @@
               <span>{mode === 'signin' ? 'Sign In' : 'Create Account'}</span>
             {/if}
           </div>
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] duration-1000 transition-transform"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] duration-700 transition-transform"></div>
         </button>
 
         <div class="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/20 pt-4">
@@ -213,7 +220,7 @@
       </div>
     </div>
     
-    <p class="text-center mt-8 text-white/20 text-xs px-8">
+    <p class="text-center mt-8 text-white/15 text-xs px-8">
       By continuing, you agree to our terms of service and privacy policy. 
       Your data is securely synced with Supabase.
     </p>

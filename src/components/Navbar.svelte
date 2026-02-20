@@ -10,11 +10,6 @@
     class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
   >
     <a use:link href="/" class="flex items-center gap-3">
-      <img
-        src="/logo.png"
-        alt="Streame"
-        class="h-9 w-9 rounded-xl shadow-lg ring-1 ring-white/10"
-      />
       <span class="text-xl font-extrabold tracking-tight text-white"
         >Streame</span
       >

@@ -191,30 +191,31 @@
 
 <div class="flex flex-col items-center gap-10 py-6">
   <!-- Search Bar Section -->
-  <div class="flex w-full flex-col items-center gap-4">
+  <div class="flex w-full flex-col items-center gap-5">
     <div class="relative w-full max-w-[500px]">
+      <div class="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400/20 via-yellow-400/10 to-yellow-400/20 blur-xl opacity-50"></div>
       <input
         type="text"
         bind:value={query}
         on:keydown={handleKeydown}
         placeholder="the office"
-        class="w-full rounded-full border-none bg-zinc-900/90 px-6 py-4 text-sm font-medium text-yellow-500 placeholder:text-yellow-600/30 focus:ring-2 focus:ring-yellow-500/20 outline-none shadow-2xl transition-all"
+        class="relative w-full rounded-full border-none bg-zinc-900/80 px-6 py-4 text-sm font-medium text-white placeholder:text-white/30 focus:ring-2 focus:ring-yellow-400/30 outline-none shadow-2xl shadow-black/50 transition-all"
       />
       <div
-        class="absolute right-4 top-1/2 -translate-y-1/2 rounded-md bg-zinc-800 px-2 py-0.5 text-[10px] font-bold text-zinc-500 ring-1 ring-white/5 uppercase"
+        class="absolute right-4 top-1/2 -translate-y-1/2 rounded-lg bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white/40 ring-1 ring-white/5 uppercase backdrop-blur-sm"
       >
         Esc
       </div>
     </div>
 
     <!-- Tabs Section -->
-    <div class="flex w-full max-w-[900px] flex-col gap-3">
-      <div class="flex flex-wrap items-center justify-center gap-3">
+    <div class="flex w-full max-w-[900px] flex-col gap-4">
+      <div class="flex flex-wrap items-center justify-center gap-2.5">
       <button
-        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+        class={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition-all duration-200 ${
           selectedType === "all"
-            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
-            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+            ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
+            : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 ring-1 ring-white/5"
         }`}
         on:click={() => (selectedType = "all")}
       >
@@ -223,10 +224,10 @@
       </button>
 
       <button
-        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+        class={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition-all duration-200 ${
           selectedType === "movie"
-            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
-            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+            ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
+            : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 ring-1 ring-white/5"
         }`}
         on:click={() => (selectedType = "movie")}
       >
@@ -235,10 +236,10 @@
       </button>
 
       <button
-        class={`flex items-center gap-2 rounded-xl border px-6 py-2.5 text-xs font-bold transition-all ${
+        class={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold transition-all duration-200 ${
           selectedType === "tv"
-            ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
-            : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+            ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
+            : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 ring-1 ring-white/5"
         }`}
         on:click={() => (selectedType = "tv")}
       >
@@ -249,10 +250,10 @@
 
       <div class="flex items-center justify-center gap-2">
         <button
-          class={`rounded-xl border px-4 py-2 text-xs font-bold transition-all ${
+          class={`rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 ${
             filtersOpen
-              ? "border-yellow-500/50 bg-yellow-500/10 text-yellow-500"
-              : "border-white/5 bg-zinc-900/50 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
+              ? "bg-yellow-400/10 text-yellow-400 ring-1 ring-yellow-400/30"
+              : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/80 ring-1 ring-white/5"
           }`}
           on:click={() => (filtersOpen = !filtersOpen)}
         >
@@ -261,7 +262,7 @@
 
         {#if selectedGenre || year.trim() || minRating > 0 || sortBy !== "relevance"}
           <button
-            class="rounded-xl border border-white/5 bg-zinc-900/50 px-4 py-2 text-xs font-bold text-zinc-500 transition-all hover:bg-zinc-900 hover:text-zinc-300"
+            class="rounded-xl bg-white/5 px-4 py-2 text-xs font-bold text-white/50 ring-1 ring-white/5 transition-all hover:bg-white/10 hover:text-white/80"
             on:click={() => {
               selectedGenre = null;
               year = "";
@@ -275,12 +276,12 @@
       </div>
 
       {#if filtersOpen}
-        <div class="w-full rounded-2xl border border-white/5 bg-zinc-900/40 p-3">
-          <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="w-full rounded-2xl border border-white/5 bg-black/40 p-4 backdrop-blur-xl">
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Genre</div>
               <select
-                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-yellow-400/20 transition-all"
                 bind:value={selectedGenre}
               >
                 <option value={null}>All</option>
@@ -293,7 +294,7 @@
             <div>
               <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Year</div>
               <input
-                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-yellow-400/20 transition-all"
                 inputmode="numeric"
                 placeholder="2024"
                 maxlength="4"
@@ -304,7 +305,7 @@
             <div>
               <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Min rating</div>
               <select
-                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-yellow-400/20 transition-all"
                 bind:value={minRating}
               >
                 <option value={0}>Any</option>
@@ -318,7 +319,7 @@
             <div>
               <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Sort</div>
               <select
-                class="mt-1 w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-sm text-white/80 outline-none focus:ring-2 focus:ring-yellow-500/20"
+                class="mt-1.5 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:ring-2 focus:ring-yellow-400/20 transition-all"
                 bind:value={sortBy}
               >
                 <option value="relevance">Relevance</option>
@@ -337,8 +338,8 @@
   <!-- Results Heading -->
   {#if query.trim()}
     <div class="w-full text-left">
-      <h2 class="text-2xl font-semibold text-zinc-400">
-        showing result for <span class="text-yellow-500 font-bold ml-1"
+      <h2 class="text-xl font-semibold text-white/60">
+        showing result for <span class="gradient-text font-bold ml-1"
           >{query}</span
         >
       </h2>
@@ -348,59 +349,61 @@
   <!-- Error / Loading / Results Grid -->
   {#if error}
     <div
-      class="w-full rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center text-red-200 shadow-xl"
+      class="w-full rounded-3xl border border-red-500/20 bg-red-500/10 p-6 text-center text-red-200 shadow-xl backdrop-blur-sm"
     >
       {error}
     </div>
   {:else if loading}
-    <div class="grid w-full grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+    <div class="grid w-full grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
       {#each Array(9) as _}
         <div
-          class="h-40 animate-pulse rounded-[32px] bg-white/5 ring-1 ring-white/10"
+          class="h-44 animate-pulse rounded-[28px] bg-gradient-to-br from-white/5 to-white/[0.02] ring-1 ring-white/5"
         ></div>
       {/each}
     </div>
   {:else if results.length > 0}
     <div
-      class="grid w-full grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2 xl:grid-cols-3"
+      class="grid w-full grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-2 xl:grid-cols-3"
     >
       {#each results as item (item.id)}
         {@const res = toResult(item)}
         <a
           use:link
           href={res.href}
-          class="group flex items-center gap-5 transition-transform hover:scale-[1.02]"
+          class="group flex items-center gap-5 transition-all duration-300 hover:scale-[1.02]"
         >
           <!-- Poster -->
           <div
-            class="relative h-44 w-32 flex-none overflow-hidden rounded-[24px] shadow-2xl ring-1 ring-white/10 transition-shadow group-hover:shadow-yellow-500/10"
+            class="relative h-44 w-32 flex-none overflow-hidden rounded-[24px] shadow-2xl shadow-black/50 ring-1 ring-white/5 transition-all duration-300 group-hover:shadow-yellow-400/20 group-hover:ring-yellow-400/30"
           >
             <img
               src={getPosterUrl(res.posterPath, "w342")}
               alt={res.title}
               class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
             />
+            <!-- Gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
 
           <!-- Metadata -->
-          <div class="flex flex-col gap-1.5 overflow-hidden">
+          <div class="flex flex-col gap-2 overflow-hidden">
             <h3
-              class="line-clamp-1 text-xl font-bold text-white transition-colors group-hover:text-yellow-500"
+              class="line-clamp-1 text-lg font-bold text-white transition-colors duration-300 group-hover:text-yellow-400"
             >
               {res.title}
             </h3>
             <div
-              class="flex items-center gap-2 text-[13px] font-medium text-zinc-500"
+              class="flex items-center gap-2 text-[13px] font-medium text-white/40"
             >
-              <span>{res.typeLabel}</span>
-              <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
-              <span>{res.rating}</span>
-              <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
+              <span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] font-bold uppercase">{res.typeLabel}</span>
+              <span class="h-1 w-1 rounded-full bg-white/20"></span>
+              <span class="text-yellow-400">{res.rating}</span>
+              <span class="h-1 w-1 rounded-full bg-white/20"></span>
               <span>{res.year}</span>
-              <span class="h-1 w-1 rounded-full bg-zinc-600"></span>
+              <span class="h-1 w-1 rounded-full bg-white/20"></span>
               <span>{res.lang}</span>
             </div>
-            <div class="text-[13px] font-medium text-zinc-500 capitalize">
+            <div class="text-[13px] font-medium text-white/30 capitalize">
               {res.genre}
             </div>
           </div>
@@ -412,17 +415,17 @@
     {#if totalPages > 1}
       <div class="mt-8 flex items-center gap-4">
         <button
-          class="rounded-2xl border border-white/10 bg-zinc-900/50 px-6 py-3 text-sm font-bold text-white/70 transition-all hover:bg-zinc-800 disabled:opacity-20"
+          class="rounded-xl bg-white/5 px-6 py-3 text-sm font-bold text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white disabled:opacity-30 ring-1 ring-white/5"
           on:click={() => load(Math.max(1, page - 1))}
           disabled={loading || page <= 1}
         >
           Previous
         </button>
-        <div class="text-sm font-bold text-zinc-500">
-          {page} / {totalPages}
+        <div class="text-sm font-bold text-white/40">
+          {page} <span class="text-white/20">/</span> {totalPages}
         </div>
         <button
-          class="rounded-2xl border border-white/10 bg-zinc-900/50 px-6 py-3 text-sm font-bold text-white/70 transition-all hover:bg-zinc-800 disabled:opacity-20"
+          class="rounded-xl bg-white/5 px-6 py-3 text-sm font-bold text-white/60 transition-all duration-200 hover:bg-white/10 hover:text-white disabled:opacity-30 ring-1 ring-white/5"
           on:click={() => load(Math.min(totalPages, page + 1))}
           disabled={loading || page >= totalPages}
         >
@@ -431,8 +434,8 @@
       </div>
     {/if}
   {:else if query.trim() && !loading}
-    <div class="w-full py-20 text-center text-zinc-500 lg:text-lg">
-      No results found for "{query}"
+    <div class="w-full py-20 text-center text-white/30 lg:text-lg">
+      No results found for <span class="text-white/50">"{query}"</span>
     </div>
   {/if}
 </div>
