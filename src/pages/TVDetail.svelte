@@ -190,10 +190,10 @@
                   href={`/watch/tv/${tv.id}/${ep.season_number}/${ep.episode_number}`}
                   class="group block overflow-hidden rounded-2xl bg-white/[0.03] ring-1 ring-white/5 transition-all duration-300 hover:bg-white/[0.06] hover:ring-yellow-400/20"
                 >
-                  <div class="flex gap-4 p-3">
+                  <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 p-3 sm:p-4">
                     <!-- Episode Thumbnail -->
                     <div
-                      class="relative aspect-video w-36 flex-none overflow-hidden rounded-xl bg-zinc-800"
+                      class="relative aspect-video w-full sm:w-40 flex-none overflow-hidden rounded-xl bg-zinc-800"
                     >
                       {#if ep.still_path}
                         <img
@@ -215,20 +215,20 @@
                         </div>
                       </div>
                     </div>
-                    
+
                     <!-- Episode Info -->
                     <div class="flex flex-1 flex-col justify-center min-w-0">
                       <div class="flex items-start justify-between gap-2">
-                        <div>
-                          <div class="flex items-center gap-2">
-                            <span class="rounded-md bg-yellow-400/10 px-1.5 py-0.5 text-[10px] font-bold text-yellow-400">
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-2 flex-wrap">
+                            <span class="rounded-md bg-yellow-400/10 px-1.5 py-0.5 text-[10px] font-bold text-yellow-400 whitespace-nowrap">
                               EP {ep.episode_number}
                             </span>
-                            <h4 class="text-sm font-semibold text-white/90 group-hover:text-yellow-400 transition-colors line-clamp-1">
+                            <h4 class="text-sm sm:text-base font-semibold text-white/90 group-hover:text-yellow-400 transition-colors line-clamp-1">
                               {ep.name}
                             </h4>
                           </div>
-                          
+
                           <!-- Episode metadata -->
                           <div class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-white/40">
                             {#if ep.air_date}
@@ -250,10 +250,10 @@
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- Overview -->
                       {#if ep.overview}
-                        <p class="mt-2 line-clamp-2 text-[11px] text-white/40 leading-relaxed">
+                        <p class="mt-2 line-clamp-2 text-[11px] sm:text-xs text-white/40 leading-relaxed">
                           {ep.overview}
                         </p>
                       {/if}
