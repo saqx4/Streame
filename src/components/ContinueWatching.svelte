@@ -232,7 +232,7 @@
       class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
     >
       {#each items as item (`${item.type}-${item.id}`)}
-        <div class="group relative shrink-0 w-[160px] sm:w-[200px]">
+        <div class="group relative shrink-0 w-[120px] sm:w-[150px]">
           <a
             use:link
             href={item.href}
@@ -261,26 +261,26 @@
             </div>
 
             <!-- Info -->
-            <div class="p-3">
-              <h3 class="line-clamp-1 text-sm font-semibold text-white">
+            <div class="p-2">
+              <h3 class="line-clamp-1 text-xs font-semibold text-white">
                 {item.title}
               </h3>
-              <div class="mt-1 flex items-center gap-2">
+              <div class="mt-0.5 flex items-center gap-1.5">
                 {#if item.meta}
-                  <span class="text-xs text-white/60">{item.meta}</span>
+                  <span class="text-[10px] text-white/60">{item.meta}</span>
                 {/if}
               </div>
 
               {#if typeof item.progressPct === 'number' && item.progressPct > 0}
-                <div class="mt-2 space-y-1">
-                  <div class="h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                <div class="mt-1.5 space-y-1">
+                  <div class="h-1 w-full rounded-full bg-white/10 overflow-hidden">
                     <div
                       class="h-full rounded-full bg-yellow-400"
                       style={`width: ${item.progressPct}%;`}
                     ></div>
                   </div>
                   {#if item.remainingLabel}
-                    <div class="text-[11px] text-white/40">{item.remainingLabel}</div>
+                    <div class="text-[9px] text-white/40">{item.remainingLabel}</div>
                   {/if}
                 </div>
               {/if}
@@ -289,11 +289,11 @@
 
           <!-- Delete Button -->
           <button
-            class="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
+            class="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
             on:click={(e) => removeItem(e, item)}
             title="Remove from history"
           >
-            <Trash2 size={14} />
+            <Trash2 size={12} />
           </button>
         </div>
       {/each}
