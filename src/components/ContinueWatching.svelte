@@ -9,7 +9,7 @@
   import { isPlayerServerKey, type PlayerServerKey } from "../services/playerServers";
   import { getPosterUrl } from "../services/tmdb";
   import { redirectToLogin } from "../lib/loginRedirect";
-  import { Play, X, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
+  import { Play, Info, MoreVertical, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
 
   let loading = true;
   let error: string | null = null;
@@ -259,6 +259,22 @@
                   </div>
                 </div>
 
+                <div class="pointer-events-none absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-black/90 via-black/45 to-transparent"></div>
+
+                <div class="absolute left-0 right-0 bottom-2 px-2">
+                  <div class="line-clamp-2 text-[11px] font-semibold leading-tight text-white">
+                    {item.title}
+                  </div>
+                  <div class="mt-0.5 flex items-center gap-2">
+                    {#if item.meta}
+                      <div class="text-[10px] text-white/70">{item.meta}</div>
+                    {/if}
+                    {#if item.remainingLabel}
+                      <div class="text-[10px] text-white/60">{item.remainingLabel}</div>
+                    {/if}
+                  </div>
+                </div>
+
                 {#if typeof item.progressPct === "number"}
                   <div class="absolute left-0 right-0 bottom-0 h-1.5 bg-black/50">
                     <div
@@ -271,25 +287,25 @@
             </a>
 
             <button
-              class="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/80 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
-              on:click={(e) => removeItem(e, item)}
-              aria-label={`Remove ${item.title} from Continue Watching`}
-              title="Remove from history"
+              class="absolute left-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
+              on:click={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              aria-label={`Info for ${item.title}`}
+              title="Info"
             >
-              <X size={14} />
+              <Info size={14} />
             </button>
 
-            <div class="mt-2 space-y-0.5 px-0.5">
-              <div class="line-clamp-1 text-[12px] font-semibold text-white/90">{item.title}</div>
-              <div class="flex items-center gap-2">
-                {#if item.meta}
-                  <div class="text-[10px] text-white/55">{item.meta}</div>
-                {/if}
-                {#if item.remainingLabel}
-                  <div class="text-[10px] text-white/35">{item.remainingLabel}</div>
-                {/if}
-              </div>
-            </div>
+            <button
+              class="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
+              on:click={(e) => removeItem(e, item)}
+              aria-label={`More options for ${item.title}`}
+              title="More"
+            >
+              <MoreVertical size={14} />
+            </button>
           </div>
         {/each}
       </div>
