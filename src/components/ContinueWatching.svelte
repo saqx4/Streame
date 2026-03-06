@@ -9,7 +9,7 @@
   import { isPlayerServerKey, type PlayerServerKey } from "../services/playerServers";
   import { getPosterUrl } from "../services/tmdb";
   import { redirectToLogin } from "../lib/loginRedirect";
-  import { Play, Info, MoreVertical, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
+  import { Play, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
 
   let loading = true;
   let error: string | null = null;
@@ -240,26 +240,24 @@
             <a
               use:link
               href={item.href}
-              class="block overflow-hidden rounded-xl bg-white/[0.03] ring-1 ring-white/10 transition-all duration-200 group-hover:scale-[1.06] group-hover:ring-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+              class="block overflow-hidden rounded-2xl bg-zinc-900/50 ring-1 ring-white/5 transition-all duration-300 group-hover:ring-yellow-400/30 group-hover:scale-[1.03] group-hover:shadow-2xl group-hover:shadow-yellow-400/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
               aria-label={`Continue watching ${item.title}`}
             >
               <div class="relative aspect-[2/3]">
                 <img
                   src={getPosterUrl(item.posterPath, "w500")}
                   alt={item.title}
-                  class="h-full w-full object-cover"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                 />
 
-                <div class="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/35"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                  <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg">
-                    <Play size={18} class="text-black" fill="currentColor" />
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400 text-black shadow-2xl shadow-yellow-400/40">
+                    <Play size={20} fill="currentColor" />
                   </div>
                 </div>
-
-                <div class="pointer-events-none absolute left-0 right-0 bottom-0 h-20 bg-gradient-to-t from-black/90 via-black/45 to-transparent"></div>
 
                 <div class="absolute left-0 right-0 bottom-2 px-2">
                   <div class="line-clamp-2 text-[11px] font-semibold leading-tight text-white">
@@ -278,7 +276,7 @@
                 {#if typeof item.progressPct === "number"}
                   <div class="absolute left-0 right-0 bottom-0 h-1.5 bg-black/50">
                     <div
-                      class="h-full bg-red-600"
+                      class="h-full bg-yellow-400"
                       style={`width: ${item.progressPct}%;`}
                     ></div>
                   </div>
@@ -287,24 +285,12 @@
             </a>
 
             <button
-              class="absolute left-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
-              on:click={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-              aria-label={`Info for ${item.title}`}
-              title="Info"
-            >
-              <Info size={14} />
-            </button>
-
-            <button
-              class="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
+              class="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
               on:click={(e) => removeItem(e, item)}
-              aria-label={`More options for ${item.title}`}
-              title="More"
+              aria-label={`Remove ${item.title} from Continue Watching`}
+              title="Remove from history"
             >
-              <MoreVertical size={14} />
+              <Trash2 size={14} />
             </button>
           </div>
         {/each}
