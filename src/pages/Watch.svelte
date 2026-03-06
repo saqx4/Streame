@@ -274,6 +274,9 @@
   $: prevEp = (mediaType === "tv" && seasonData && episodeNumber)
     ? (seasonData.episodes || []).find((e: any) => e.episode_number === episodeNumber - 1)
     : null;
+  $: currentEp = (mediaType === "tv" && seasonData && episodeNumber)
+    ? (seasonData.episodes || []).find((e: any) => e.episode_number === episodeNumber)
+    : null;
 
   const goBack = () => {
     if (tmdbId) {
@@ -375,6 +378,9 @@
             <span class="text-sm text-white/50">
               Season {seasonNumber} • Episode {episodeNumber}
             </span>
+            {#if currentEp?.name}
+              <span class="text-sm text-white/70">• {currentEp.name}</span>
+            {/if}
           {/if}
         </div>
       </div>

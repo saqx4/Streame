@@ -232,14 +232,14 @@
       class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
     >
       {#each items as item (`${item.type}-${item.id}`)}
-        <div class="group relative shrink-0 w-[200px] sm:w-[240px]">
+        <div class="group relative shrink-0 w-[160px] sm:w-[200px]">
           <a
             use:link
             href={item.href}
             class="block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10 transition-all duration-200 hover:ring-yellow-400/50 hover:scale-[1.02]"
           >
             <!-- Poster -->
-            <div class="relative aspect-video overflow-hidden">
+            <div class="relative aspect-[2/3] overflow-hidden">
               <img
                 src={getPosterUrl(item.posterPath, "w500")}
                 alt={item.title}
