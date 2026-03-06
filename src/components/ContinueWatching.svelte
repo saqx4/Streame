@@ -232,14 +232,14 @@
       class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
     >
       {#each items as item (`${item.type}-${item.id}`)}
-        <div class="group relative shrink-0 w-[120px] sm:w-[150px]">
+        <div class="group relative shrink-0 w-[280px]">
           <a
             use:link
             href={item.href}
-            class="block overflow-hidden rounded-2xl bg-zinc-900 ring-1 ring-white/10 transition-all duration-200 hover:ring-yellow-400/50 hover:scale-[1.02]"
+            class="flex gap-3 overflow-hidden rounded-2xl bg-zinc-900 p-2 ring-1 ring-white/10 transition-all duration-200 hover:ring-yellow-400/50 hover:scale-[1.02]"
           >
             <!-- Poster -->
-            <div class="relative aspect-[2/3] overflow-hidden">
+            <div class="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg">
               <img
                 src={getPosterUrl(item.posterPath, "w500")}
                 alt={item.title}
@@ -252,17 +252,16 @@
                 class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <div
-                  class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/30"
+                  class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/30"
                 >
-                  <Play size={20} class="text-black" fill="currentColor" />
+                  <Play size={14} class="text-black" fill="currentColor" />
                 </div>
               </div>
-
             </div>
 
             <!-- Info -->
-            <div class="p-2">
-              <h3 class="line-clamp-1 text-xs font-semibold text-white">
+            <div class="flex min-w-0 flex-1 flex-col justify-center">
+              <h3 class="line-clamp-1 text-sm font-semibold text-white">
                 {item.title}
               </h3>
               <div class="mt-0.5 flex items-center gap-1.5">
@@ -289,7 +288,7 @@
 
           <!-- Delete Button -->
           <button
-            class="absolute right-1 top-1 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
+            class="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
             on:click={(e) => removeItem(e, item)}
             title="Remove from history"
           >
