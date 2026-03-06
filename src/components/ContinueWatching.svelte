@@ -227,75 +227,72 @@
       </div>
     </div>
 
-    <div
-      bind:this={scroller}
-      class="no-scrollbar flex gap-4 overflow-x-auto pb-2 scroll-smooth"
-    >
-      {#each items as item (`${item.type}-${item.id}`)}
-        <div class="group relative shrink-0 w-[280px]">
-          <a
-            use:link
-            href={item.href}
-            class="flex gap-3 overflow-hidden rounded-2xl bg-zinc-900 p-2 ring-1 ring-white/10 transition-all duration-200 hover:ring-yellow-400/50 hover:scale-[1.02]"
-          >
-            <!-- Poster -->
-            <div class="relative h-24 w-16 shrink-0 overflow-hidden rounded-lg">
-              <img
-                src={getPosterUrl(item.posterPath, "w500")}
-                alt={item.title}
-                class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
-              />
+    <div class="relative">
+      <div class="pointer-events-none absolute left-0 top-0 bottom-2 z-10 w-12 bg-gradient-to-r from-[#050505] to-transparent"></div>
+      <div class="pointer-events-none absolute right-0 top-0 bottom-2 z-10 w-12 bg-gradient-to-l from-[#050505] to-transparent"></div>
 
-              <!-- Play Overlay -->
-              <div
-                class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100"
-              >
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400 shadow-lg shadow-yellow-400/30"
-                >
-                  <Play size={14} class="text-black" fill="currentColor" />
+      <div
+        bind:this={scroller}
+        class="no-scrollbar flex gap-3 overflow-x-auto pb-2 pr-2 pl-1 scroll-smooth snap-x snap-mandatory"
+      >
+        {#each items as item (`${item.type}-${item.id}`)}
+          <div class="group relative w-[145px] shrink-0 snap-start">
+            <a
+              use:link
+              href={item.href}
+              class="block overflow-hidden rounded-xl bg-white/[0.03] ring-1 ring-white/10 transition-all duration-200 group-hover:scale-[1.06] group-hover:ring-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+              aria-label={`Continue watching ${item.title}`}
+            >
+              <div class="relative aspect-[2/3]">
+                <img
+                  src={getPosterUrl(item.posterPath, "w500")}
+                  alt={item.title}
+                  class="h-full w-full object-cover"
+                  loading="lazy"
+                />
+
+                <div class="absolute inset-0 bg-black/0 transition-colors duration-200 group-hover:bg-black/35"></div>
+
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-lg">
+                    <Play size={18} class="text-black" fill="currentColor" />
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <!-- Info -->
-            <div class="flex min-w-0 flex-1 flex-col justify-center">
-              <h3 class="line-clamp-1 text-sm font-semibold text-white">
-                {item.title}
-              </h3>
-              <div class="mt-0.5 flex items-center gap-1.5">
-                {#if item.meta}
-                  <span class="text-[10px] text-white/60">{item.meta}</span>
-                {/if}
-              </div>
-
-              {#if typeof item.progressPct === 'number' && item.progressPct > 0}
-                <div class="mt-1.5 space-y-1">
-                  <div class="h-1 w-full rounded-full bg-white/10 overflow-hidden">
+                {#if typeof item.progressPct === "number"}
+                  <div class="absolute left-0 right-0 bottom-0 h-1.5 bg-black/50">
                     <div
-                      class="h-full rounded-full bg-yellow-400"
+                      class="h-full bg-red-600"
                       style={`width: ${item.progressPct}%;`}
                     ></div>
                   </div>
-                  {#if item.remainingLabel}
-                    <div class="text-[9px] text-white/40">{item.remainingLabel}</div>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-          </a>
+                {/if}
+              </div>
+            </a>
 
-          <!-- Delete Button -->
-          <button
-            class="absolute right-2 top-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white/70 opacity-0 backdrop-blur-md transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 active:scale-90"
-            on:click={(e) => removeItem(e, item)}
-            title="Remove from history"
-          >
-            <Trash2 size={12} />
-          </button>
-        </div>
-      {/each}
+            <button
+              class="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white/80 opacity-0 backdrop-blur-md transition-all hover:bg-black/80 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
+              on:click={(e) => removeItem(e, item)}
+              aria-label={`Remove ${item.title} from Continue Watching`}
+              title="Remove from history"
+            >
+              <X size={14} />
+            </button>
+
+            <div class="mt-2 space-y-0.5 px-0.5">
+              <div class="line-clamp-1 text-[12px] font-semibold text-white/90">{item.title}</div>
+              <div class="flex items-center gap-2">
+                {#if item.meta}
+                  <div class="text-[10px] text-white/55">{item.meta}</div>
+                {/if}
+                {#if item.remainingLabel}
+                  <div class="text-[10px] text-white/35">{item.remainingLabel}</div>
+                {/if}
+              </div>
+            </div>
+          </div>
+        {/each}
+      </div>
     </div>
   </section>
 {/if}
