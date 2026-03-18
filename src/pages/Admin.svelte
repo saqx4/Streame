@@ -690,3 +690,6 @@
     100% { transform: scale(1); opacity: 1; }
   }
 </style>
+
+
+      <!-- Presets Section (only for new servers) -->
