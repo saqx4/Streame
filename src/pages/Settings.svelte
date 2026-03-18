@@ -3,9 +3,11 @@
   import { supabase, isSupabaseEnabled } from '../lib/supabaseClient'
   import { authUser, authLoading, signOut } from '../stores/auth'
   import { redirectToLogin } from '../lib/loginRedirect'
-  import { LogOut, LogIn, User, Cloud, ShieldCheck } from 'lucide-svelte'
+  import { link } from 'svelte-spa-router'
+  import { LogOut, LogIn, User, Cloud, ShieldCheck, Settings2, Server } from 'lucide-svelte'
 
   let userEmail: string | null = null
+  let isAdmin = false
   let loadingUser = true
 
   const loadUser = async () => {
@@ -13,10 +15,18 @@
     try {
       if (!isSupabaseEnabled) {
         userEmail = null
+        isAdmin = false
         return
       }
       const { data } = await supabase.auth.getUser()
       userEmail = data?.user?.email ?? null
+
+      if (userEmail) {
+        const { data: adminData } = await supabase.rpc('is_admin')
+        isAdmin = !!adminData
+      } else {
+        isAdmin = false
+      }
     } finally {
       loadingUser = false
     }
@@ -56,7 +66,7 @@
     <div class="flex flex-col gap-4">
       <div class="flex items-center justify-between rounded-2xl bg-black/20 p-4 border border-white/5">
         <div class="flex items-center gap-4">
-          <div class="h-12 w-12 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-900 flex items-center justify-center border border-white/10 text-white/40 shadow-inner">
+          <div class="h-12 w-12 rounded-full bg-linear-to-br from-zinc-700 to-zinc-900 flex items-center justify-center border border-white/10 text-white/40 shadow-inner">
             {#if $authUser}
               <span class="text-lg font-bold text-white/80">{$authUser.email?.[0].toUpperCase()}</span>
             {:else}
@@ -105,4 +115,28 @@
       </div>
     </div>
   </div>
+
+  {#if isAdmin}
+    <div class="rounded-3xl border border-yellow-400/20 bg-yellow-400/5 p-6 backdrop-blur-sm animate-in fade-in slide-in-from-top-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-yellow-400 to-yellow-600 text-black shadow-lg shadow-yellow-400/20">
+            <Server size={24} />
+          </div>
+          <div>
+            <div class="text-lg font-bold tracking-tight text-white mb-0.5">Admin Controls</div>
+            <p class="text-[11px] text-white/50">Manage streaming servers and app config</p>
+          </div>
+        </div>
+        <a
+          use:link
+          href="/admin"
+          class="flex items-center gap-2 rounded-xl bg-yellow-400 px-5 py-2.5 text-xs font-black text-black shadow-lg shadow-yellow-400/20 transition-all hover:scale-105 active:scale-95"
+        >
+          <Settings2 size={16} />
+          Open Dashboard
+        </a>
+      </div>
+    </div>
+  {/if}
 </section>
