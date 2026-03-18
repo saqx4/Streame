@@ -43,6 +43,9 @@ const mock = {
       order: () => ({ data: [], error: { message: 'Supabase not configured' } }),
     } as any;
   },
+  rpc() {
+    return { data: null, error: { message: 'Supabase not configured' } } as any;
+  },
 } as unknown as SupabaseClient;
 
 export const supabase = (client ?? mock);

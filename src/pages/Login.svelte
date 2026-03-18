@@ -52,7 +52,8 @@
     loading = true
     try {
       if (mode === 'signin') {
-        const res = await signInWithPassword(email.trim(), password)
+        const loginEmail = email.trim().toLowerCase() === 'admin' ? 'admin@streame.app' : email.trim()
+        const res = await signInWithPassword(loginEmail, password)
         if (res.error) {
           error = res.error.message
           return
@@ -81,7 +82,7 @@
     class="absolute inset-0 opacity-30 bg-cover bg-center bg-no-repeat blur-sm scale-110"
     style="background-image: url('https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?q=80&w=2070&auto=format&fit=crop');"
   ></div>
-  <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/90 to-[#050505]/70"></div>
+  <div class="absolute inset-0 bg-linear-to-t from-[#050505] via-[#050505]/90 to-[#050505]/70"></div>
   <!-- Animated gradient orbs -->
   <div class="absolute top-1/4 -left-20 w-80 h-80 bg-yellow-400/20 rounded-full blur-[100px] animate-pulse"></div>
   <div class="absolute bottom-1/4 -right-20 w-80 h-80 bg-yellow-400/10 rounded-full blur-[100px] animate-pulse" style="animation-delay: 1s;"></div>
@@ -103,7 +104,7 @@
 
     <div class="rounded-[32px] border border-white/5 bg-black/50 p-6 sm:p-10 backdrop-blur-3xl shadow-2xl overflow-hidden relative">
       <!-- Top Accent -->
-      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-yellow-400/50 to-transparent"></div>
+      <div class="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-yellow-400/50 to-transparent"></div>
       
       <!-- Corner accents -->
       <div class="absolute top-0 left-0 w-20 h-20 border-l border-t border-yellow-400/20 rounded-tl-[32px]"></div>
@@ -164,7 +165,7 @@
 
       <div class="space-y-5">
         <div class="space-y-2">
-          <label for="login-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Email Address</label>
+          <label for="login-email" class="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 ml-1">Email or Username</label>
           <div class="relative group">
             <div class="absolute inset-y-0 left-4 flex items-center text-white/20 group-focus-within:text-yellow-400/60 transition-colors">
               <Mail size={16} />
@@ -172,10 +173,10 @@
             <input
               id="login-email"
               class="w-full rounded-2xl border border-white/5 bg-white/5 pl-12 pr-4 py-4 text-sm text-white outline-none transition-all focus:border-yellow-400/40 focus:bg-white/[0.08] focus:ring-4 focus:ring-yellow-400/10"
-              type="email"
+              type="text"
               bind:value={email}
-              placeholder="name@example.com"
-              autocomplete="email"
+              placeholder="admin or name@example.com"
+              autocomplete="username"
             />
           </div>
         </div>
@@ -210,7 +211,7 @@
               <span>{mode === 'signin' ? 'Sign In' : 'Create Account'}</span>
             {/if}
           </div>
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] duration-700 transition-transform"></div>
+          <div class="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] duration-700 transition-transform"></div>
         </button>
 
         <div class="flex items-center justify-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/20 pt-4">

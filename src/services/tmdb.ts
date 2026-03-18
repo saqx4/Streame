@@ -297,123 +297,38 @@ export const getProfileUrl = (path: string | null, size: string = 'w185'): strin
   return `${TMDB_IMAGE_BASE_URL}/${size}${path}`;
 };
 
+import type { PlayerServer } from '../stores/servers';
+
 // Streaming service URLs
 export const getStreamingUrl = (
   tmdbId: number,
   type: 'movie' | 'tv',
-  server: PlayerServerKey,
+  serverKey: string,
+  serversList: PlayerServer[],
   season?: number,
   episode?: number,
   startAt?: number
 ): string => {
-  switch (server) {
-    case 'server1':
-      if (type === 'movie') {
-        return `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`;  // Updated to vidsrc.me
-      } else {
-        return `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-      }
-    case 'server4':
-      if (type === 'movie') {
-        return `https://2embed.ru/embed/movie/${tmdbId}`;  // Updated domain
-      } else {
-        return `https://2embed.ru/embedtv/${tmdbId}&s=${season}&e=${episode}`;
-      }
-    case 'server6':
-      if (type === 'movie') {
-        return `https://vidking.net/embed/movie/${tmdbId}?color=e50914`;  // TLD update
-      } else {
-        return `https://vidking.net/embed/tv/${tmdbId}/${season}/${episode}?color=e50914`;
-      }
-    case 'server7': {
-      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''}`;
-      const base = `${common}?player=jw&primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&secondaryColor=a2a2a2&iconColor=eefdec&autoplay=false`;
-      const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
-      return start > 0 ? `${base}&startAt=${start}` : base;
-    }
-    case 'server8': {
-      const common = `https://vidlink.pro/${type === 'movie' ? 'movie' : 'tv'}/${tmdbId}${type === 'tv' ? `/${season}/${episode}` : ''}`;
-      const base = `${common}?primaryColor=${type === 'movie' ? '006fee' : 'f5a524'}&autoplay=false`;
-      const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
-      return start > 0 ? `${base}&startAt=${start}` : base;
-    }
-    case 'server10':
-      return type === 'movie'
-        ? `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1`
-        : `https://multiembed.mov/directstream.php?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
-    case 'server13':
-      return type === 'movie'
-        ? `https://autoembed.co/movie/tmdb/${tmdbId}`
-        : `https://autoembed.co/tv/tmdb/${tmdbId}-${season}-${episode}`;
-    case 'server14':
-      return type === 'movie'
-        ? `https://player.autoembed.cc/embed/movie/${tmdbId}`
-        : `https://player.autoembed.cc/embed/tv/${tmdbId}/${season}/${episode}`;
-    case 'server17':
-      return type === 'movie'
-        ? `https://vidsrc.icu/embed/movie/${tmdbId}`
-        : `https://vidsrc.icu/embed/tv/${tmdbId}/${season}/${episode}`;
-    case 'server18':
-      return type === 'movie'
-        ? `https://moviesapi.club/movie/${tmdbId}`  // Confirmed
-        : `https://moviesapi.club/tv/${tmdbId}-${season}-${episode}`;
-    case 'server26':
-      return type === 'movie'
-        ? `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}`
-        : `https://embed.smashystream.com/playere.php?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-    case 'server27': {
-      if (type === 'movie') {
-        const base = `https://vidlink.pro/movie/${tmdbId}?primaryColor=1e40af&autoplay=false`;
-        const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
-        return start > 0 ? `${base}&startAt=${start}` : base;
-      }
-      const base = `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?primaryColor=1e40af&autoplay=false`;
-      const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
-      return start > 0 ? `${base}&startAt=${start}` : base;
-    }
-    case 'server29':
-      return type === 'movie'
-        ? `https://111movies.to/movie/${tmdbId}`  // TLD update
-        : `https://111movies.to/tv/${tmdbId}/${season}/${episode}`;
-    case 'server30':
-      return type === 'movie'
-        ? `https://vidfast.tv/movie/${tmdbId}`  // TLD update
-        : `https://vidfast.tv/tv/${tmdbId}/${season}/${episode}`;
-    case 'server31':  // New: GoDrivePlayer TMDB support
-      return type === 'movie'
-        ? `https://godriveplayer.com/player.php?tmdb=${tmdbId}`
-        : `https://godriveplayer.com/player.php?type=series&tmdb=${tmdbId}&season=${season}&episode=${episode}`;
-    case 'server32':  // New: SuperEmbed (iframe-based)
-      if (type === 'movie') {
-        return `https://www.superembed.stream/embed/movie/${tmdbId}`;
-      } else {
-        return `https://www.superembed.stream/embed/tv/${tmdbId}/${season}/${episode}`;
-      }
-    case 'server33':
-      return type === 'movie'
-        ? `https://vidsrcme.ru/embed/movie/${tmdbId}`
-        : `https://vidsrcme.ru/embed/tv/${tmdbId}/${season}-${episode}`;
-    case 'server34':
-      return type === 'movie'
-        ? `https://vidsrcme.su/embed/movie/${tmdbId}`
-        : `https://vidsrcme.su/embed/tv/${tmdbId}/${season}-${episode}`;
-    case 'server35':
-      return type === 'movie'
-        ? `https://vidsrc-me.ru/embed/movie/${tmdbId}`
-        : `https://vidsrc-me.ru/embed/tv/${tmdbId}/${season}-${episode}`;
-    case 'server36':
-      return type === 'movie'
-        ? `https://vidsrc-me.su/embed/movie/${tmdbId}`
-        : `https://vidsrc-me.su/embed/tv/${tmdbId}/${season}-${episode}`;
-    case 'server38':
-      return type === 'movie'
-        ? `https://vidsrc-embed.su/embed/movie/${tmdbId}`
-        : `https://vidsrc-embed.su/embed/tv/${tmdbId}/${season}-${episode}`;
-    case 'server39':
-      return type === 'movie'
-        ? `https://vsrc.su/embed/movie/${tmdbId}`
-        : `https://vsrc.su/embed/tv/${tmdbId}/${season}-${episode}`;
-    default:
-      return '';
+  const server = serversList.find(s => s.id === serverKey);
+  if (!server) return '';
+
+  let url = type === 'movie' ? server.movie_url_pattern : server.tv_url_pattern;
+  if (!url) return '';
+
+  url = url.replace('{tmdbId}', tmdbId.toString());
+  if (type === 'tv') {
+    url = url.replace('{season}', season?.toString() || '1');
+    url = url.replace('{episode}', episode?.toString() || '1');
   }
+
+  const start = startAt && startAt > 0 ? Math.floor(startAt) : 0;
+  if (url.includes('{startAtParam}')) {
+    url = url.replace('{startAtParam}', start > 0 ? `&startAt=${start}` : '');
+  } else if (start > 0) {
+    // If it's just meant to append &startAt
+    const sep = url.includes('?') ? '&' : '?';
+    url += `${sep}startAt=${start}`;
+  }
+
+  return url;
 };

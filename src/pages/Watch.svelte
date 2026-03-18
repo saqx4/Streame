@@ -4,7 +4,7 @@
   import { params, push } from "svelte-spa-router";
   import { getStreamingUrl, tmdbService } from "../services/tmdb";
   import {
-    playerServerOptions,
+    playerServers,
     type PlayerServerKey,
     isPlayerServerKey,
   } from "../services/playerServers";
@@ -302,8 +302,8 @@
   };
 
   const tryNextServer = () => {
-    const i = playerServerOptions.findIndex((s) => s.key === preferredServer);
-    const next = playerServerOptions[(i >= 0 ? i + 1 : 0) % playerServerOptions.length]?.key;
+    const i = $playerServers.findIndex((s) => s.id === preferredServer);
+    const next = $playerServers[(i >= 0 ? i + 1 : 0) % $playerServers.length]?.id;
     if (next) savePreferredServer(next);
   };
 
@@ -312,9 +312,10 @@
         tmdbId,
         mediaType,
         preferredServer,
+        $playerServers,
         mediaType === "tv" ? seasonNumber : undefined,
         mediaType === "tv" ? episodeNumber : undefined,
-        undefined,
+        startAtFromQuery
       )
     : "";
 
@@ -346,6 +347,9 @@
   }
 
   $: metaKey = `${mediaType}:${tmdbId}:${seasonNumber ?? ""}:${episodeNumber ?? ""}`;
+  $: if ($playerServers.length > 0 && preferredServer && !$playerServers.find(s => s.id === preferredServer)) {
+    preferredServer = $playerServers[0].id;
+  }
   $: if (tmdbId && Number.isFinite(tmdbId) && tmdbId > 0) {
     void loadMeta(metaKey);
   }
@@ -402,7 +406,7 @@
           <span class="min-w-0">
             <span class="block text-[10px] font-bold uppercase tracking-widest text-white/30">Server</span>
             <span class="block line-clamp-1 text-white/85">
-              {playerServerOptions.find((s) => s.key === preferredServer)?.label || preferredServer}
+              {$playerServers.find((s) => s.id === preferredServer)?.name || preferredServer}
             </span>
           </span>
         </span>
@@ -418,8 +422,8 @@
           role="listbox"
         >
           <div class="overscroll-contain max-h-[380px] overflow-auto p-2">
-            {#each playerServerOptions as s}
-              {@const isActive = s.key === preferredServer}
+            {#each $playerServers as s}
+              {@const isActive = s.id === preferredServer}
               <button
                 type="button"
                 class={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all ${
@@ -428,11 +432,11 @@
                     : "text-white/70 hover:bg-white/5 hover:text-white"
                 }`}
                 on:click={() => {
-                  if (isPlayerServerKey(s.key)) savePreferredServer(s.key);
+                  if (isPlayerServerKey(s.id)) savePreferredServer(s.id);
                   serverPickerOpen = false;
                 }}
               >
-                <span class="line-clamp-1">{s.label}</span>
+                <span class="line-clamp-1">{s.name}</span>
                 {#if isActive}
                   <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
                     <Check size={16} />
@@ -468,7 +472,7 @@
                 </div>
                 <div class="space-y-1">
                   <p class="font-medium text-white">Preparing Stream</p>
-                  <p class="text-xs text-white/40">Connecting to {playerServerOptions.find(s => s.key === preferredServer)?.label}</p>
+                  <p class="text-xs text-white/40">Connecting to {$playerServers.find(s => s.id === preferredServer)?.name}</p>
                 </div>
                 
                 {#if iframeTimedOut}

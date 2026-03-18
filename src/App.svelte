@@ -11,7 +11,10 @@
   import Watchlist from "./pages/Watchlist.svelte";
   import Settings from "./pages/Settings.svelte";
   import Login from "./pages/Login.svelte";
+  import Admin from "./pages/Admin.svelte";
   import NotFound from "./pages/NotFound.svelte";
+  import { onMount } from "svelte";
+  import { loadServers } from "./stores/servers";
 
   const routes = {
     "/": Home,
@@ -28,8 +31,13 @@
     "/watchlist": Watchlist,
     "/settings": Settings,
     "/login": Login,
+    "/admin": Admin,
     "*": NotFound,
   };
+
+  onMount(() => {
+    loadServers();
+  });
 </script>
 
 <div
