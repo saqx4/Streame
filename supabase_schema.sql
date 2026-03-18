@@ -33,37 +33,6 @@ DROP POLICY IF EXISTS "Allow users to read their own role" ON public.user_roles;
 CREATE POLICY "Allow users to read their own role" ON public.user_roles
   FOR SELECT USING (auth.uid() = user_id);
 
--- Admins can read all roles, insert, update, delete servers
-DROP POLICY IF EXISTS "Allow admins to read all roles" ON public.user_roles;
-CREATE POLICY "Allow admins to read all roles" ON public.user_roles
-  FOR SELECT USING (
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin'
-  );
-
-DROP POLICY IF EXISTS "Allow admins to insert servers" ON public.streaming_servers;
-CREATE POLICY "Allow admins to insert servers" ON public.streaming_servers
-  FOR INSERT WITH CHECK (
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin'
-  );
-
-DROP POLICY IF EXISTS "Allow admins to update servers" ON public.streaming_servers;
-CREATE POLICY "Allow admins to update servers" ON public.streaming_servers
-  FOR UPDATE USING (
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin'
-  );
-
-DROP POLICY IF EXISTS "Allow admins to delete servers" ON public.streaming_servers;
-CREATE POLICY "Allow admins to delete servers" ON public.streaming_servers
-  FOR DELETE USING (
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin'
-  );
-
-DROP POLICY IF EXISTS "Allow admins to see inactive servers" ON public.streaming_servers;
-CREATE POLICY "Allow admins to see inactive servers" ON public.streaming_servers
-  FOR SELECT USING (
-    (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin'
-  );
-
 -- Function to check if a user is an admin
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean AS $$
@@ -71,6 +40,25 @@ BEGIN
   RETURN (SELECT role FROM public.user_roles WHERE user_id = auth.uid()) = 'admin';
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Remove recursive read all roles policy
+DROP POLICY IF EXISTS "Allow admins to read all roles" ON public.user_roles;
+
+DROP POLICY IF EXISTS "Allow admins to insert servers" ON public.streaming_servers;
+CREATE POLICY "Allow admins to insert servers" ON public.streaming_servers
+  FOR INSERT WITH CHECK ( public.is_admin() );
+
+DROP POLICY IF EXISTS "Allow admins to update servers" ON public.streaming_servers;
+CREATE POLICY "Allow admins to update servers" ON public.streaming_servers
+  FOR UPDATE USING ( public.is_admin() );
+
+DROP POLICY IF EXISTS "Allow admins to delete servers" ON public.streaming_servers;
+CREATE POLICY "Allow admins to delete servers" ON public.streaming_servers
+  FOR DELETE USING ( public.is_admin() );
+
+DROP POLICY IF EXISTS "Allow admins to see inactive servers" ON public.streaming_servers;
+CREATE POLICY "Allow admins to see inactive servers" ON public.streaming_servers
+  FOR SELECT USING ( public.is_admin() );
 
 -- Create the admin user (Wait for any existing script, this ensures proper fields for Supabase Auth)
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
