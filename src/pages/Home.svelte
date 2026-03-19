@@ -144,36 +144,42 @@
   });
 </script>
 
-<section class="space-y-10 pb-6">
+<section class="space-y-16 pb-12">
   {#if loading}
     <div
-      class="flex h-[400px] items-center justify-center rounded-3xl bg-zinc-900/50"
+      class="flex h-[500px] items-center justify-center rounded-[48px] bg-white/[0.02] ring-1 ring-white/5"
     >
-      <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-6">
         <div
-          class="h-10 w-10 animate-spin rounded-full border-4 border-yellow-400/30 border-t-yellow-400"
+          class="h-12 w-12 animate-spin rounded-full border-4 border-yellow-400/20 border-t-yellow-400"
         ></div>
-        <p class="text-sm text-white/50">Loading content...</p>
+        <p class="text-sm font-bold tracking-widest uppercase text-white/30">Curating your experience...</p>
       </div>
     </div>
   {:else if heroItems.length}
     <Hero items={heroItems} />
   {/if}
 
-  <ContinueWatching />
+  <div class="space-y-20">
+    <ContinueWatching />
 
-  <SectionCarousel title="Trending Movies" items={trendingMovies} {loading} />
-  <SectionCarousel title="Trending TV Shows" items={trendingTV} {loading} />
-  <SectionCarousel title="Top Rated Movies" items={topRatedMovies} {loading} />
-  <SectionCarousel title="Top Rated TV Shows" items={topRatedTV} {loading} />
-  <SectionCarousel title="Popular Movies" items={popularMovies} {loading} />
-  <SectionCarousel title="Popular TV Shows" items={popularTV} {loading} />
-  <SectionCarousel title="Action Movies" items={actionMovies} {loading} />
-  <SectionCarousel title="Comedy Movies" items={comedyMovies} {loading} />
-  <SectionCarousel title="Drama Movies" items={dramaMovies} {loading} />
-  <SectionCarousel title="Horror Movies" items={horrorMovies} {loading} />
-  <SectionCarousel title="Romance Movies" items={romanceMovies} {loading} />
-  <SectionCarousel title="Sci-Fi Movies" items={sciFiMovies} {loading} />
-  <SectionCarousel title="Documentaries" items={documentaries} {loading} />
-  <SectionCarousel title="Animation Movies" items={animationMovies} {loading} />
+    <SectionCarousel title="Trending Movies" items={trendingMovies} {loading} />
+    <SectionCarousel title="Trending TV Shows" items={trendingTV} {loading} />
+    <SectionCarousel title="Top Rated Movies" items={topRatedMovies} {loading} />
+    
+    <!-- Visual Break / Featured Section could go here if we had more data -->
+    
+    <SectionCarousel title="Top Rated TV Shows" items={topRatedTV} {loading} />
+    <SectionCarousel title="Popular Movies" items={popularMovies} {loading} />
+    <SectionCarousel title="Popular TV Shows" items={popularTV} {loading} />
+    
+    <SectionCarousel title="Action" chips={['Explosive', 'Thrilling']} items={actionMovies} {loading} />
+    <SectionCarousel title="Comedy" chips={['Hilarious', 'Feel Good']} items={comedyMovies} {loading} />
+    <SectionCarousel title="Drama" chips={['Intense', 'Emotional']} items={dramaMovies} {loading} />
+    <SectionCarousel title="Horror" chips={['Terrifying', 'Supernatural']} items={horrorMovies} {loading} />
+    <SectionCarousel title="Romance" items={romanceMovies} {loading} />
+    <SectionCarousel title="Sci-Fi" items={sciFiMovies} {loading} />
+    <SectionCarousel title="Documentaries" items={documentaries} {loading} />
+    <SectionCarousel title="Animation" items={animationMovies} {loading} />
+  </div>
 </section>

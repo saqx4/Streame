@@ -122,7 +122,7 @@
           <div class="mt-1 text-xs text-white/60">Sign in to access your watchlist on any device.</div>
         </div>
         <button
-          class="inline-flex h-10 items-center justify-center rounded-xl bg-yellow-400 px-4 text-xs font-black text-black"
+          class="inline-flex h-10 items-center justify-center rounded-xl bg-accent px-4 text-xs font-black text-black"
           on:click={() => redirectToLogin(window.location.hash || '#/watchlist')}
         >
           Sign in

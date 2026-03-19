@@ -24,27 +24,35 @@
   }
 </script>
 
-<section class="space-y-3">
-  <div class="flex items-center justify-between px-1">
-    <div class="flex items-center gap-3">
-      <h2 class="text-[22px] font-bold tracking-tight text-white/90">{title}</h2>
-      {#if items.length > 0}
-        <span class="rounded-full bg-yellow-400/10 px-2.5 py-0.5 text-[10px] font-bold text-yellow-400 ring-1 ring-yellow-400/20">
-          {items.length}
-        </span>
+<section class="space-y-6 animate-in">
+  <div class="flex items-end justify-between px-2">
+    <div class="space-y-1">
+      {#if chips.length > 0}
+         <div class="flex flex-wrap gap-2 pb-1">
+          {#each chips as c (c)}
+            <span class="rounded-lg bg-white/5 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white/40 ring-1 ring-white/10 hover:bg-white/10 hover:text-white/80 transition-all cursor-pointer">{c}</span>
+          {/each}
+        </div>
       {/if}
+      <div class="flex items-center gap-2.5">
+        <h2 class="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h2>
+        {#if items.length > 0}
+          <div class="h-1 w-1 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
+        {/if}
+      </div>
     </div>
-    <div class="flex items-center gap-2">
+    
+    <div class="flex items-center gap-2 pb-1">
       <div class="hidden items-center gap-1.5 sm:flex">
         <button
-          class="group inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-200 active:scale-95"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-300 active:scale-95"
           on:click={() => scrollByAmount(-1)}
           aria-label="Scroll left"
         >
           <ChevronLeft size={16} class="transition-transform group-hover:-translate-x-0.5" />
         </button>
         <button
-          class="group inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-200 active:scale-95"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-300 active:scale-95"
           on:click={() => scrollByAmount(1)}
           aria-label="Scroll right"
         >
@@ -54,30 +62,22 @@
     </div>
   </div>
 
-  {#if chips.length}
-    <div class="flex flex-wrap gap-2 px-1">
-      {#each chips as c (c)}
-        <span class="rounded-lg bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white/80 transition-all cursor-pointer">{c}</span>
-      {/each}
-    </div>
-  {/if}
-
-  <div class="relative">
-    <!-- Gradient fade edges -->
-    <div class="pointer-events-none absolute left-0 top-0 bottom-3 z-10 w-12 bg-gradient-to-r from-[#050505] to-transparent"></div>
-    <div class="pointer-events-none absolute right-0 top-0 bottom-3 z-10 w-12 bg-gradient-to-l from-[#050505] to-transparent"></div>
+  <div class="relative group/carousel">
+    <!-- Gradient edges -->
+    <div class="pointer-events-none absolute -left-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-r from-[#050505] to-transparent"></div>
+    <div class="pointer-events-none absolute -right-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-l from-[#050505] to-transparent"></div>
     
     <div
       bind:this={scroller}
-      class="no-scrollbar flex gap-4 overflow-x-auto pb-3 pr-2 pl-1"
+      class="no-scrollbar flex gap-5 overflow-x-auto pb-6 pr-4 pl-2 pt-2 transition-all"
     >
       {#if loading}
         {#each Array(skeletonCount) as _, i (i)}
-          <div class="w-[145px] shrink-0">
-            <div class="aspect-[2/3] animate-pulse rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] ring-1 ring-white/5"></div>
-            <div class="mt-2.5 space-y-1.5">
-              <div class="h-3 w-[120px] animate-pulse rounded-lg bg-white/5"></div>
-              <div class="h-2 w-[60px] animate-pulse rounded-lg bg-white/5"></div>
+          <div class="w-[140px] shrink-0 sm:w-[160px]">
+            <div class="aspect-[2/3] animate-pulse rounded-[20px] bg-gradient-to-br from-white/10 to-transparent ring-1 ring-white/5"></div>
+            <div class="mt-3 space-y-2">
+              <div class="h-3.5 w-[120px] animate-pulse rounded-lg bg-white/5"></div>
+              <div class="h-2.5 w-[50px] animate-pulse rounded-lg bg-white/5"></div>
             </div>
           </div>
         {/each}

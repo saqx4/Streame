@@ -198,7 +198,7 @@
         </div>
       </div>
       <button
-        class="inline-flex h-10 items-center justify-center rounded-xl bg-yellow-400 px-4 text-xs font-black text-black transition-all hover:bg-yellow-300 active:scale-95"
+        class="inline-flex h-10 items-center justify-center rounded-xl bg-accent px-4 text-xs font-black text-black transition-all hover:bg-accent active:scale-95"
         on:click={() => redirectToLogin(window.location.hash || "#/")}
       >
         Sign in
@@ -240,7 +240,7 @@
             <a
               use:link
               href={item.href}
-              class="block overflow-hidden rounded-2xl bg-zinc-900/50 ring-1 ring-white/5 transition-all duration-300 will-change-transform group-hover:-translate-y-1 group-hover:ring-yellow-400/30 group-hover:shadow-2xl group-hover:shadow-yellow-400/10 group-hover:scale-[1.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-400"
+              class="block overflow-hidden rounded-2xl bg-zinc-900/50 ring-1 ring-white/5 transition-all duration-300 will-change-transform group-hover:-translate-y-1 group-hover:ring-accent/30 group-hover:shadow-2xl group-hover:shadow-accent/10 group-hover:scale-[1.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               aria-label={`Continue watching ${item.title}`}
             >
               <div class="relative aspect-[2/3]">
@@ -255,7 +255,7 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
                 <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400 text-black shadow-2xl shadow-yellow-400/40">
+                  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-black shadow-2xl shadow-accent/40">
                     <Play size={20} fill="currentColor" />
                   </div>
                 </div>
@@ -281,7 +281,7 @@
                 {#if typeof item.progressPct === "number"}
                   <div class="absolute left-0 right-0 bottom-0 h-1.5 bg-black/50">
                     <div
-                      class="h-full bg-yellow-400"
+                      class="h-full bg-accent"
                       style={`width: ${item.progressPct}%;`}
                     ></div>
                   </div>

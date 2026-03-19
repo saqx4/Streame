@@ -359,31 +359,32 @@
   }
 </script>
 
-<section class="max-w-[1200px] mx-auto space-y-6">
+<section class="max-w-[1400px] mx-auto space-y-6 sm:space-y-8 animate-in pb-12">
   <!-- Header / Navigation -->
-  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="flex items-center gap-4">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
+    <div class="flex items-center gap-4 sm:gap-5">
       <button 
         on:click={goBack}
-        class="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95"
+        class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 hover:ring-white/20 active:scale-95"
         aria-label="Go back"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={20} class="sm:w-5.5 sm:h-5.5" />
       </button>
-      <div>
-        <h1 class="text-xl font-bold tracking-tight sm:text-2xl">
+      <div class="space-y-0.5 sm:space-y-1 min-w-0">
+        <h1 class="text-xl font-black tracking-tight sm:text-3xl line-clamp-1">
           {title || 'Loading...'}
         </h1>
-        <div class="flex items-center gap-2 mt-0.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-white/40 bg-white/5 px-1.5 py-0.5 rounded">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <span class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded-md sm:rounded-lg ring-1 ring-yellow-400/20">
             {mediaType}
           </span>
           {#if mediaType === 'tv' && seasonNumber && episodeNumber}
-            <span class="text-sm text-white/50">
-              Season {seasonNumber} • Episode {episodeNumber}
+            <span class="text-[10px] sm:text-xs font-bold text-white/40 uppercase tracking-widest">
+              S{seasonNumber} • E{episodeNumber}
             </span>
             {#if currentEp?.name}
-              <span class="text-sm text-white/70">• {currentEp.name}</span>
+              <span class="h-1 w-1 rounded-full bg-white/20 hidden xs:block"></span>
+              <span class="text-[10px] sm:text-xs font-bold text-white/60 truncate max-w-[120px] sm:max-w-[200px] hidden xs:block">{currentEp.name}</span>
             {/if}
           {/if}
         </div>
@@ -391,45 +392,48 @@
     </div>
 
     <!-- Server Selector -->
-    <div class="relative min-w-[220px]" bind:this={serverPickerEl}>
+    <div class="relative w-full sm:min-w-[260px] sm:w-auto" bind:this={serverPickerEl}>
       <button
         type="button"
-        class="group flex w-full items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-[0.98]"
+        class="group flex w-full items-center justify-between gap-3 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-2.5 sm:p-3 text-xs sm:text-sm font-black transition-all hover:bg-white/10 hover:border-white/20 active:scale-[0.98] backdrop-blur-3xl"
         aria-haspopup="listbox"
         aria-expanded={serverPickerOpen}
         on:click={() => (serverPickerOpen = !serverPickerOpen)}
       >
-        <span class="flex items-center gap-2 min-w-0">
-          <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/5 text-white/50 ring-1 ring-white/10">
-            <Server size={16} />
-          </span>
-          <span class="min-w-0">
-            <span class="block text-[10px] font-bold uppercase tracking-widest text-white/30">Server</span>
-            <span class="block line-clamp-1 text-white/85">
+        <span class="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-yellow-400/10 text-yellow-400 ring-1 ring-yellow-400/20">
+            <Server size={16} class="sm:w-[18px] sm:h-[18px]" />
+          </div>
+          <div class="text-left min-w-0">
+            <span class="block text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/30">Current Server</span>
+            <span class="block line-clamp-1 text-white/80">
               {$playerServers.find((s) => s.id === preferredServer)?.name || preferredServer}
             </span>
-          </span>
+          </div>
         </span>
         <ChevronDown
           size={16}
-          class={`text-white/40 transition-transform ${serverPickerOpen ? "rotate-180" : ""}`}
+          class={`text-white/30 transition-transform duration-300 ${serverPickerOpen ? "rotate-180" : ""}`}
         />
       </button>
 
       {#if serverPickerOpen}
         <div
-          class="absolute right-0 top-[calc(100%+10px)] z-30 w-[420px] max-w-[92vw] overflow-hidden rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl shadow-2xl"
+          class="absolute right-0 left-0 sm:left-auto top-[calc(100%+8px)] sm:top-[calc(100%+12px)] z-50 sm:w-[400px] max-w-[96vw] overflow-hidden rounded-[24px] sm:rounded-[32px] border border-white/10 bg-black/60 backdrop-blur-3xl shadow-2xl animate-in fade-in zoom-in-95 duration-200"
           role="listbox"
         >
-          <div class="overscroll-contain max-h-[380px] overflow-auto p-2">
+          <div class="p-2 sm:p-3 border-b border-white/5">
+            <span class="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white/20 px-2">Available Servers</span>
+          </div>
+          <div class="overscroll-contain max-h-[300px] sm:max-h-[400px] overflow-auto p-1.5 sm:p-2 custom-scrollbar">
             {#each $playerServers as s}
               {@const isActive = s.id === preferredServer}
               <button
                 type="button"
-                class={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold transition-all ${
+                class={`flex w-full items-center justify-between gap-3 rounded-lg sm:rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3.5 text-left text-xs sm:text-sm font-bold transition-all ${
                   isActive
-                    ? "bg-yellow-400/10 text-yellow-300 ring-1 ring-yellow-400/20"
-                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                    ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+                    : "text-white/60 hover:bg-white/5 hover:text-white"
                 }`}
                 on:click={() => {
                   if (isPlayerServerKey(s.id)) savePreferredServer(s.id);
@@ -438,9 +442,7 @@
               >
                 <span class="line-clamp-1">{s.name}</span>
                 {#if isActive}
-                  <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20">
-                    <Check size={16} />
-                  </span>
+                  <Check size={16} class="sm:w-[18px] sm:h-[18px]" strokeWidth={3} />
                 {/if}
               </button>
             {/each}
@@ -451,45 +453,45 @@
   </div>
 
   {#if !tmdbId}
-    <div class="flex flex-col items-center justify-center py-20 rounded-3xl border border-dashed border-white/10 bg-white/5 text-center">
-      <div class="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-4">
-        <ExternalLink size={24} />
+    <div class="flex flex-col items-center justify-center py-20 sm:py-32 rounded-[32px] sm:rounded-[48px] border-2 border-dashed border-white/5 bg-white/[0.02] text-center mx-2">
+      <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl sm:rounded-3xl bg-red-500/10 flex items-center justify-center text-red-500 mb-4 sm:mb-6">
+        <ExternalLink size={24} class="sm:w-8 sm:h-8" />
       </div>
-      <h3 class="text-lg font-semibold text-white">Invalid Media</h3>
-      <p class="text-sm text-white/50 mt-1">We couldn't find the content you're looking for.</p>
+      <h3 class="text-lg sm:text-xl font-black text-white">Playback Error</h3>
+      <p class="text-[10px] sm:text-sm font-bold text-white/30 mt-2 max-w-[240px] uppercase tracking-widest leading-relaxed">Media identifier is missing or invalid.</p>
     </div>
   {:else}
-    <div class="relative group">
+    <div class="relative group px-2 sm:px-0">
       <!-- Player Container -->
-      <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl transition-all duration-500">
+      <div class="relative overflow-hidden rounded-[24px] sm:rounded-[48px] border border-white/10 bg-[#050505] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] transition-all duration-500 ring-1 ring-white/5">
         <div class="relative aspect-video">
           {#if !iframeLoaded}
-            <div class="absolute inset-0 z-10 flex items-center justify-center bg-zinc-950/80 backdrop-blur-sm">
-              <div class="flex flex-col items-center gap-5 px-6 text-center">
-                <div class="relative h-16 w-16">
-                  <div class="absolute inset-0 rounded-full border-4 border-yellow-400/20"></div>
-                  <div class="absolute inset-0 rounded-full border-4 border-t-yellow-400 animate-spin"></div>
+            <div class="absolute inset-0 z-10 flex items-center justify-center bg-[#050505]/80 backdrop-blur-3xl">
+              <div class="flex flex-col items-center gap-4 sm:gap-6 px-6 text-center">
+                <div class="relative h-12 w-12 sm:h-20 sm:w-20">
+                  <div class="absolute inset-0 rounded-full border-2 sm:border-4 border-yellow-400/10"></div>
+                  <div class="absolute inset-0 rounded-full border-2 sm:border-4 border-t-yellow-400 animate-[spin_1s_linear_infinite] shadow-[0_0_20px_rgba(250,204,21,0.3)]"></div>
                 </div>
-                <div class="space-y-1">
-                  <p class="font-medium text-white">Preparing Stream</p>
-                  <p class="text-xs text-white/40">Connecting to {$playerServers.find(s => s.id === preferredServer)?.name}</p>
+                <div class="space-y-1 sm:space-y-2">
+                  <p class="text-sm sm:text-lg font-black tracking-tight text-white">Connecting to Stream</p>
+                  <p class="text-[8px] sm:text-[10px] font-black uppercase tracking-[0.2em] text-white/30">Server: {$playerServers.find(s => s.id === preferredServer)?.name}</p>
                 </div>
                 
                 {#if iframeTimedOut}
-                  <div class="flex flex-col gap-3 mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div class="flex flex-col gap-2 sm:gap-3 mt-4 sm:mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <button
-                      class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl bg-yellow-400 px-6 text-sm font-bold text-black transition-all hover:bg-yellow-300 active:scale-95 shadow-lg shadow-yellow-400/20"
+                      class="inline-flex h-10 sm:h-14 items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-[24px] bg-yellow-400 px-6 sm:px-8 text-xs sm:text-sm font-black text-black transition-all hover:bg-yellow-300 hover:scale-105 active:scale-95 shadow-xl shadow-yellow-400/20"
                       on:click={tryNextServer}
                     >
-                      <RefreshCw size={16} />
-                      Try next server
+                      <RefreshCw size={14} class="sm:w-[18px] sm:h-[18px]" strokeWidth={2.5} />
+                      Next Server
                     </button>
                     <button
-                      class="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 text-sm font-medium text-white transition-all hover:bg-white/10 active:scale-95"
+                      class="inline-flex h-10 sm:h-14 items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-[24px] border border-white/10 bg-white/5 px-6 sm:px-8 text-xs sm:text-sm font-bold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-95"
                       on:click={openInNewTab}
                     >
-                      <ExternalLink size={16} />
-                      Open in tab
+                      <ExternalLink size={14} class="sm:w-[18px] sm:h-[18px]" />
+                      Open Externally
                     </button>
                   </div>
                 {/if}
@@ -509,36 +511,36 @@
 
       <!-- TV Navigation Overlay/Controls -->
       {#if mediaType === 'tv' && (prevEp || nextEp)}
-        <div class="flex items-center justify-between gap-4 mt-6">
-          <div class="flex-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8">
+          <div>
             {#if prevEp}
               <button
-                class="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 pr-5 text-left transition-all hover:bg-white/10 hover:border-white/20 active:scale-95"
+                class="group flex w-full items-center gap-3 sm:gap-5 rounded-[20px] sm:rounded-[32px] border border-white/10 bg-white/[0.02] p-3 sm:p-4 text-left transition-all hover:bg-white/[0.05] hover:ring-2 hover:ring-white/10 active:scale-[0.98]"
                 on:click={() => navigateToEpisode(prevEp.episode_number)}
               >
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 group-hover:bg-white/10 text-white/60 group-hover:text-white transition-colors">
-                  <ChevronLeft size={20} />
+                <div class="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-white/5 text-white/40 transition-all group-hover:bg-white/10 group-hover:text-white">
+                  <ChevronLeft size={20} class="sm:w-7 sm:h-7" />
                 </div>
-                <div>
-                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Previous</div>
-                  <div class="text-sm font-medium text-white/80 line-clamp-1">E{prevEp.episode_number}: {prevEp.name || 'Episode ' + prevEp.episode_number}</div>
+                <div class="min-w-0">
+                  <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/20">Previous</div>
+                  <div class="text-sm sm:text-base font-black text-white/80 line-clamp-1">E{prevEp.episode_number}: {prevEp.name || 'Untitled'}</div>
                 </div>
               </button>
             {/if}
           </div>
 
-          <div class="flex-1 flex justify-end">
+          <div class="flex justify-end">
             {#if nextEp}
               <button
-                class="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 pl-5 text-right transition-all hover:bg-white/10 hover:border-white/20 active:scale-95"
+                class="group flex w-full items-center justify-between gap-3 sm:gap-5 rounded-[20px] sm:rounded-[32px] border border-white/10 bg-white/[0.02] p-3 sm:p-4 text-right transition-all hover:bg-white/[0.05] hover:ring-2 hover:ring-yellow-400/20 active:scale-[0.98]"
                 on:click={() => navigateToEpisode(nextEp.episode_number)}
               >
-                <div class="order-2 flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-400 text-black shadow-lg shadow-yellow-400/20 group-hover:bg-yellow-300 transition-colors">
-                  <ChevronRight size={20} />
+                <div class="min-w-0 text-left sm:text-right ml-0 sm:ml-4">
+                  <div class="text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] text-white/20">Up Next</div>
+                  <div class="text-sm sm:text-base font-black text-white/80 line-clamp-1">E{nextEp.episode_number}: {nextEp.name || 'Untitled'}</div>
                 </div>
-                <div class="order-1">
-                  <div class="text-[10px] font-bold uppercase tracking-wider text-white/30">Next Up</div>
-                  <div class="text-sm font-medium text-white/80 line-clamp-1">E{nextEp.episode_number}: {nextEp.name || 'Episode ' + nextEp.episode_number}</div>
+                <div class="flex h-10 w-10 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-yellow-400 text-black shadow-xl shadow-yellow-400/20 transition-all group-hover:bg-yellow-300 group-hover:scale-105">
+                  <ChevronRight size={20} class="sm:w-7 sm:h-7" strokeWidth={2.5} />
                 </div>
               </button>
             {/if}
@@ -548,25 +550,25 @@
     </div>
 
     <!-- Info Section -->
-    <div class="p-6 rounded-3xl bg-white/5 border border-white/10 flex flex-wrap items-center justify-between gap-4">
-      <div class="space-y-1">
-        <h4 class="text-sm font-semibold text-white/90">Trouble with playback?</h4>
-        <p class="text-xs text-white/40 max-w-sm">Try switching servers if the player doesn't load or is slow. Some servers might be blocked in your region.</p>
+    <div class="p-6 sm:p-8 rounded-[32px] sm:rounded-[40px] bg-white/[0.02] border border-white/10 backdrop-blur-3xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mx-2 sm:mx-0">
+      <div class="space-y-1 sm:space-y-2">
+        <h4 class="text-sm sm:text-base font-black tracking-tight text-white/90">Troubleshooting</h4>
+        <p class="text-[11px] sm:text-sm font-medium text-white/30 max-w-lg leading-relaxed">Try switching servers if the stream buffers. Some providers might be restricted in your location.</p>
       </div>
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
         <button
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-medium text-white/70 transition-all hover:bg-white/10 active:scale-95"
+          class="flex-1 sm:flex-none inline-flex h-10 sm:h-14 items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 px-4 sm:px-6 text-xs sm:text-sm font-black text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
           on:click={tryNextServer}
         >
-          <RefreshCw size={14} />
-          Switch Server
+          <RefreshCw size={14} class="sm:w-[18px] sm:h-[18px]" />
+          Change Server
         </button>
         <button
-          class="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-medium text-white/70 transition-all hover:bg-white/10 active:scale-95"
+          class="flex-1 sm:flex-none inline-flex h-10 sm:h-14 items-center justify-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 px-4 sm:px-6 text-xs sm:text-sm font-black text-white/70 transition-all hover:bg-white/10 hover:text-white active:scale-95"
           on:click={openInNewTab}
         >
-          <ExternalLink size={14} />
-          External Player
+          <ExternalLink size={14} class="sm:w-[18px] sm:h-[18px]" />
+          Pop-out
         </button>
       </div>
     </div>

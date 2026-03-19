@@ -38,15 +38,20 @@
   onMount(() => {
     loadServers();
   });
+
+  // Scroll to top on every route change
+  const handleRouteChange = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
 </script>
 
 <div
-  class="min-h-screen bg-[#050505] text-white selection:bg-yellow-400 selection:text-black"
+  class="min-h-screen bg-[#050505] text-white selection:bg-accent selection:text-black"
 >
   <Sidebar />
-  <main class="px-5 pb-28 pt-5 sm:ml-[60px] sm:px-7 sm:pb-20 sm:pt-7">
-    <div class="mx-auto w-full max-w-[1400px]">
-      <Router {routes} />
+  <main class="px-4 pb-24 pt-4 sm:ml-[72px] sm:px-8 sm:pb-8 sm:pt-6">
+    <div class="mx-auto w-full max-w-[1500px] animate-in">
+      <Router {routes} on:routeLoaded={handleRouteChange} />
     </div>
   </main>
 </div>

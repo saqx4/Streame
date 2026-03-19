@@ -1,6 +1,6 @@
 <script lang="ts">
     import { link } from "svelte-spa-router";
-    import { fade, scale } from "svelte/transition";
+    import { fade, scale, fly } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
     import {
         Play,
@@ -16,6 +16,8 @@
         Globe,
         MapPin,
         Building2,
+        Star,
+        Info
     } from "lucide-svelte";
     import {
         getBackdropUrl,
@@ -26,8 +28,6 @@
     import { userMediaService } from "../services/userMedia";
     import { redirectToLogin } from "../lib/loginRedirect";
     import { onMount, onDestroy } from "svelte";
-    import RatingBadge from "./RatingBadge.svelte";
-    import PosterOverlay from "./PosterOverlay.svelte";
     import TrailerModal from "./TrailerModal.svelte";
 
     export let item: any;
@@ -40,17 +40,20 @@
     let isInWatchlist = false;
     let watchlistBusy = false;
 
+    // Logo state
+    let logoUrl: string | null = null;
+    let loadingLogo = true;
+
     // Backdrop gallery slideshow
     let backdropImages: string[] = [];
     let currentBackdropIndex = 0;
     let backdropTimer: ReturnType<typeof setInterval> | null = null;
-    const BACKDROP_INTERVAL = 7000; // 7 seconds per image
+    const BACKDROP_INTERVAL = 8000;
 
     let trailerKey = "";
     let showTrailer = false;
 
     $: title = (type === "movie" ? item?.title : item?.name) ?? "";
-    $: posterUrl = getPosterUrl(item?.poster_path, "w500");
     $: rating = item?.vote_average ?? null;
     $: watchHref = `/watch/${type}/${item?.id}`;
     $: currentBackdrop =
@@ -58,95 +61,57 @@
             ? backdropImages[currentBackdropIndex]
             : getBackdropUrl(item?.backdrop_path, "original");
 
-    // Fetch backdrop images from TMDB
+    const loadLogo = async () => {
+        if (!item?.id) return;
+        loadingLogo = true;
+        try {
+            const res = type === "movie" 
+                ? await tmdbService.getMovieImages(item.id) 
+                : await tmdbService.getTVShowImages(item.id);
+            
+            const logo = res.logos.find((l: any) => l.iso_639_1 === "en") || res.logos[0];
+            logoUrl = logo ? `https://image.tmdb.org/t/p/original${logo.file_path}` : null;
+        } catch (e) {
+            logoUrl = null;
+        } finally {
+            loadingLogo = false;
+        }
+    };
+
     const loadBackdropGallery = async () => {
         if (!item?.id) return;
-
         try {
-            const images =
-                type === "movie"
-                    ? await tmdbService.getMovieImages(item.id)
-                    : await tmdbService.getTVShowImages(item.id);
+            const images = type === "movie"
+                ? await tmdbService.getMovieImages(item.id)
+                : await tmdbService.getTVShowImages(item.id);
 
             if (images?.backdrops?.length > 0) {
-                // Get up to 10 backdrops, prioritizing English ones
                 const sortedBackdrops = [...images.backdrops]
-                    .sort((a: any, b: any) => {
-                        if (a.iso_639_1 === "en" && b.iso_639_1 !== "en")
-                            return -1;
-                        if (a.iso_639_1 !== "en" && b.iso_639_1 === "en")
-                            return 1;
-                        return (b.vote_average || 0) - (a.vote_average || 0);
-                    })
-                    .slice(0, 10);
+                    .sort((a: any, b: any) => (b.vote_average || 0) - (a.vote_average || 0))
+                    .slice(0, 8);
 
-                const mainBackdrop = getBackdropUrl(
-                    item.backdrop_path,
-                    "original",
-                );
+                const mainBackdrop = getBackdropUrl(item.backdrop_path, "original");
                 const galleryBackdrops = sortedBackdrops
                     .filter((b: any) => b.file_path !== item.backdrop_path)
                     .map((b: any) => getBackdropUrl(b.file_path, "original"));
 
                 backdropImages = [mainBackdrop, ...galleryBackdrops];
-
-                // Start rotation if we have multiple images
-                if (backdropImages.length > 1) {
-                    currentBackdropIndex = 0; // Ensure we start with main
-                    startBackdropRotation();
-                }
-            } else {
-                // Fallback to main backdrop
-                backdropImages = item?.backdrop_path
-                    ? [getBackdropUrl(item.backdrop_path, "original")]
-                    : [];
+                if (backdropImages.length > 1) startBackdropRotation();
             }
         } catch (e) {
-            console.error("Failed to load backdrop gallery:", e);
-            backdropImages = item?.backdrop_path
-                ? [getBackdropUrl(item.backdrop_path, "original")]
-                : [];
+            backdropImages = item?.backdrop_path ? [getBackdropUrl(item.backdrop_path, "original")] : [];
         }
     };
 
     const startBackdropRotation = () => {
         if (backdropTimer) clearInterval(backdropTimer);
-        if (backdropImages.length <= 1) return;
-
         backdropTimer = setInterval(() => {
-            currentBackdropIndex =
-                (currentBackdropIndex + 1) % backdropImages.length;
-
-            // Prefetch next image for smoother transition
-            const nextIdx = (currentBackdropIndex + 1) % backdropImages.length;
-            const img = new Image();
-            img.src = backdropImages[nextIdx];
+            currentBackdropIndex = (currentBackdropIndex + 1) % backdropImages.length;
         }, BACKDROP_INTERVAL);
     };
 
     const stopBackdropRotation = () => {
-        if (backdropTimer) {
-            clearInterval(backdropTimer);
-            backdropTimer = null;
-        }
-    };
-
-    const getLocalWatchlist = (): any[] => {
-        try {
-            const raw = localStorage.getItem(LOCAL_WATCHLIST_KEY);
-            const parsed = raw ? JSON.parse(raw) : [];
-            return Array.isArray(parsed) ? parsed : [];
-        } catch {
-            return [];
-        }
-    };
-
-    const setLocalWatchlist = (items: any[]) => {
-        try {
-            localStorage.setItem(LOCAL_WATCHLIST_KEY, JSON.stringify(items));
-        } catch {
-            // ignore
-        }
+        if (backdropTimer) clearInterval(backdropTimer);
     };
 
     const refreshWatchlistState = async () => {
@@ -155,21 +120,12 @@
                 const { data } = await supabase.auth.getUser();
                 userId = data?.user?.id ?? null;
                 if (userId) {
-                    isInWatchlist = await userMediaService.has(
-                        userId,
-                        Number(item?.id ?? 0),
-                        "watchlist",
-                    );
+                    isInWatchlist = await userMediaService.has(userId, Number(item?.id ?? 0), "watchlist");
                     return;
                 }
-            } else {
-                userId = null;
             }
-
-            const local = getLocalWatchlist();
-            isInWatchlist = local.some(
-                (x) => Number(x?.tmdb_id) === Number(item?.id ?? 0),
-            );
+            const local = JSON.parse(localStorage.getItem(LOCAL_WATCHLIST_KEY) || "[]");
+            isInWatchlist = local.some((x: any) => Number(x?.tmdb_id) === Number(item?.id ?? 0));
         } catch {
             isInWatchlist = false;
         }
@@ -178,12 +134,10 @@
     const toggleWatchlist = async () => {
         const tmdbId = Number(item?.id ?? 0);
         if (!tmdbId || watchlistBusy) return;
-
         if (isSupabaseEnabled && !userId) {
             redirectToLogin(window.location.hash || "#/");
             return;
         }
-
         watchlistBusy = true;
         try {
             if (userId) {
@@ -191,40 +145,43 @@
                     await userMediaService.remove(userId, tmdbId, "watchlist");
                     isInWatchlist = false;
                 } else {
-                    await userMediaService.add(
-                        userId,
-                        {
-                            tmdb_id: tmdbId,
-                            type,
-                            title,
-                            poster_path: item?.poster_path ?? null,
-                        },
-                        "watchlist",
-                    );
+                    await userMediaService.add(userId, { tmdb_id: tmdbId, type, title, poster_path: item?.poster_path ?? null }, "watchlist");
                     isInWatchlist = true;
                 }
-                return;
+            } else {
+                let local = JSON.parse(localStorage.getItem(LOCAL_WATCHLIST_KEY) || "[]");
+                if (isInWatchlist) local = local.filter((x: any) => Number(x?.tmdb_id) !== tmdbId);
+                else local.push({ tmdb_id: tmdbId, type, title, poster_path: item?.poster_path ?? null });
+                localStorage.setItem(LOCAL_WATCHLIST_KEY, JSON.stringify(local));
+                isInWatchlist = !isInWatchlist;
             }
-
-            const local = getLocalWatchlist();
-            const exists = local.some((x) => Number(x?.tmdb_id) === tmdbId);
-            const next = exists
-                ? local.filter((x) => Number(x?.tmdb_id) !== tmdbId)
-                : [
-                      {
-                          tmdb_id: tmdbId,
-                          type,
-                          title,
-                          poster_path: item?.poster_path ?? null,
-                      },
-                      ...local,
-                  ];
-            setLocalWatchlist(next);
-            isInWatchlist = !exists;
         } finally {
             watchlistBusy = false;
         }
     };
+
+    const formatRuntime = (minutes: number) => {
+        if (!minutes) return "";
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    };
+
+    const handleTrailer = async () => {
+        try {
+            const data = type === "movie" ? await tmdbService.getMovieVideos(item.id) : await tmdbService.getTVShowVideos(item.id);
+            const trailer = data.results.find((v: any) => v.type === "Trailer" && v.site === "YouTube") || data.results[0];
+            if (trailer) { trailerKey = trailer.key; showTrailer = true; }
+        } catch (e) { console.error(e); }
+    };
+
+    onMount(() => {
+        refreshWatchlistState();
+        loadBackdropGallery();
+        loadLogo();
+    });
+
+    onDestroy(stopBackdropRotation);
 
     const tabs = [
         { id: "episodes", label: "Episodes", show: type === "tv" },
@@ -233,744 +190,500 @@
         { id: "reviews", label: "Reviews", show: true },
         { id: "related", label: "Related", show: true },
     ];
-
     $: visibleTabs = tabs.filter((t) => t.show);
-
-    const formatRuntime = (minutes: number) => {
-        if (!minutes) return "—";
-        const h = Math.floor(minutes / 60);
-        const m = minutes % 60;
-        return h > 0 ? `${h}hr ${m}min` : `${m}min`;
-    };
-
-    const handleShare = async () => {
-        const shareData = {
-            title,
-            text: `Check out ${title} on Streame!`,
-            url: window.location.href,
-        };
-
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else {
-                await navigator.clipboard.writeText(window.location.href);
-                alert("Link copied to clipboard!");
-            }
-        } catch (err) {
-            console.error("Error sharing:", err);
-        }
-    };
-
-    const handleTrailer = async () => {
-        try {
-            const data =
-                type === "movie"
-                    ? await tmdbService.getMovieVideos(item.id)
-                    : await tmdbService.getTVShowVideos(item.id);
-
-            const trailer =
-                data.results.find(
-                    (v: any) => v.type === "Trailer" && v.site === "YouTube",
-                ) || data.results.find((v: any) => v.site === "YouTube");
-
-            if (trailer) {
-                trailerKey = trailer.key;
-                showTrailer = true;
-            } else {
-                alert("No trailer available for this title.");
-            }
-        } catch (e) {
-            console.error("Failed to load trailer:", e);
-        }
-    };
-
-    $: if (item?.id) {
-        refreshWatchlistState();
-        loadBackdropGallery();
-    }
-
-    onMount(() => {
-        refreshWatchlistState();
-        loadBackdropGallery();
-    });
-
-    onDestroy(() => {
-        stopBackdropRotation();
-    });
 </script>
 
-<div class="detail-layout">
-    <!-- Hero Banner -->
-    <div class="hero-banner" in:fade={{ duration: 400, easing: cubicOut }}>
-        <!-- Backdrop -->
-        <div class="backdrop">
+<div class="detail-container">
+    <!-- Immersive Stage Hero -->
+    <header class="stage-hero">
+        <div class="stage-backdrop">
             {#key currentBackdropIndex}
-                {#if currentBackdrop}
-                    <img
-                        src={currentBackdrop}
-                        alt={title}
-                        class="backdrop-image"
-                        in:fade={{ duration: 800, easing: cubicOut }}
-                        out:fade={{ duration: 600, easing: cubicOut }}
-                    />
-                {/if}
+                <img src={currentBackdrop} alt={title} class="backdrop-img" in:fade={{ duration: 1200 }} out:fade={{ duration: 800 }} />
             {/key}
-
-            <!-- Vignette Overlays -->
-            <div class="vignette-bottom"></div>
-            <div class="vignette-left"></div>
-            <div class="vignette-radial"></div>
+            <div class="scrim-v"></div>
+            <div class="scrim-h"></div>
+            <div class="scrim-radial"></div>
         </div>
 
-        <!-- Content Layer -->
-        <div class="hero-content">
-            <!-- Poster -->
-            <div
-                class="poster-section"
-                in:scale={{ duration: 500, delay: 100, easing: cubicOut }}
-            >
-                <div class="poster-wrapper">
-                    <PosterOverlay {posterUrl} alt={title} />
+        <div class="stage-content">
+            <div class="content-wrapper" in:fly={{ y: 40, duration: 1000, delay: 200 }}>
+                <!-- Logo or Title -->
+                <div class="title-area">
+                    {#if logoUrl}
+                        <img src={logoUrl} alt={title} class="movie-logo" in:scale={{ duration: 800, delay: 400, start: 0.95 }} />
+                    {:else}
+                        <h1 class="movie-title">{title}</h1>
+                    {/if}
                 </div>
-                {#if rating}
-                    <div class="rating-position">
-                        <RatingBadge {rating} size="md" />
-                    </div>
-                {/if}
-            </div>
 
-            <!-- Actions Panel -->
-            <div
-                class="actions-panel"
-                in:fade={{ duration: 400, delay: 200, easing: cubicOut }}
-            >
-                <div class="actions-card">
-                    <h1 class="media-title">{title}</h1>
-
-                    <div class="actions-row">
-                        <a use:link href={watchHref} class="btn-primary">
-                            <Play size={16} fill="currentColor" />
-                            <span>Watch</span>
-                        </a>
-
-                        <button class="btn-secondary" on:click={handleTrailer}>
-                            <Film size={14} />
-                            <span>Trailers</span>
-                        </button>
-
-                        <div class="divider"></div>
-
-                        <button
-                            class="btn-icon"
-                            class:active={isInWatchlist}
-                            class:busy={watchlistBusy}
-                            on:click={toggleWatchlist}
-                            aria-label="Toggle watchlist"
-                        >
-                            <Bookmark size={18} />
-                        </button>
-
-                        <button
-                            class="btn-icon"
-                            on:click={handleShare}
-                            aria-label="Share"
-                        >
-                            <Share2 size={18} />
-                        </button>
-
-                        <div class="type-label">
-                            <span>{type === "movie" ? "MOVIE" : "SHOW"}</span>
+                <!-- Metadata Row -->
+                <div class="meta-row">
+                    {#if rating}
+                        <div class="rating-badge">
+                            <Star size={14} fill="currentColor" />
+                            <span>{rating.toFixed(1)}</span>
                         </div>
-                    </div>
+                    {/if}
+                    <span class="meta-item">{(item.release_date || item.first_air_date || "").slice(0, 4)}</span>
+                    {#if item.runtime || (item.episode_run_time && item.episode_run_time[0])}
+                        <span class="dot"></span>
+                        <span class="meta-item">{formatRuntime(item.runtime || item.episode_run_time[0])}</span>
+                    {/if}
+                    <span class="dot"></span>
+                    <span class="meta-item uppercase tracking-widest">{type}</span>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Tabs Section -->
-    <div class="tabs-section">
-        <div class="tabs-container">
-            <!-- Tab Headers -->
-            <nav class="tab-nav">
-                {#each visibleTabs as tab (tab.id)}
-                    <button
-                        class="tab-btn"
-                        class:active={activeTab === tab.id}
-                        on:click={() => (activeTab = tab.id)}
-                    >
-                        {tab.label}
+                <!-- Tags / Genres -->
+                <div class="genre-row">
+                    {#each (item.genres || []).slice(0, 3) as g}
+                        <span class="genre-tag">{g.name}</span>
+                    {/each}
+                </div>
+
+                <!-- Overview Snippet -->
+                <p class="overview-snippet">{item.overview}</p>
+
+                <!-- Actions Stage -->
+                <div class="actions-stage">
+                    <a use:link href={watchHref} class="btn-watch group">
+                        <Play size={24} fill="currentColor" class="transition-transform group-hover:scale-110" />
+                        <span>Watch Now</span>
+                    </a>
+                    
+                    <button on:click={handleTrailer} class="btn-glass">
+                        <Film size={20} />
+                        <span>Trailer</span>
                     </button>
-                {/each}
-            </nav>
 
-            <!-- Tab Content -->
-            <div class="tab-content">
-                {#if activeTab === "overview"}
-                    <div class="overview-content">
-                        {#if item.tagline}
-                            <p class="tagline">"{item.tagline}"</p>
-                        {/if}
-                        <p class="overview-text">{item.overview || "No overview available."}</p>
+                    <button on:click={toggleWatchlist} class="btn-icon-glass" class:active={isInWatchlist}>
+                        <Bookmark size={22} fill={isInWatchlist ? "currentColor" : "none"} />
+                    </button>
 
-                        <div class="metadata-grid">
-                            <div class="meta-card">
-                                <div class="meta-icon"><Calendar size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Release Date</span>
-                                    <span class="meta-value">
-                                        {item.release_date || item.first_air_date || "—"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="meta-card">
-                                <div class="meta-icon"><Clock size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Runtime</span>
-                                    <span class="meta-value">
-                                        {formatRuntime(item.runtime || (item.episode_run_time ? item.episode_run_time[0] : 0))}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="meta-card">
-                                <div class="meta-icon"><Clapperboard size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Genre</span>
-                                    <span class="meta-value genres">
-                                        {item.genres?.map((g: any) => g.name).join(", ") || "—"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {#if item.number_of_seasons}
-                                <div class="meta-card">
-                                    <div class="meta-icon"><Tv size={16} /></div>
-                                    <div class="meta-info">
-                                        <span class="meta-label">Seasons</span>
-                                        <span class="meta-value">{item.number_of_seasons} ({item.number_of_episodes} episodes)</span>
-                                    </div>
-                                </div>
-                            {/if}
-
-                            {#if item.status}
-                                <div class="meta-card">
-                                    <div class="meta-icon"><Activity size={16} /></div>
-                                    <div class="meta-info">
-                                        <span class="meta-label">Status</span>
-                                        <span class="meta-value">{item.status}</span>
-                                    </div>
-                                </div>
-                            {/if}
-
-                            {#if item.belongs_to_collection}
-                                <div class="meta-card full-width">
-                                    <div class="meta-icon"><Layers size={16} /></div>
-                                    <div class="meta-info">
-                                        <span class="meta-label">Collection</span>
-                                        <span class="meta-value">{item.belongs_to_collection.name}</span>
-                                    </div>
-                                </div>
-                            {/if}
-
-                            <div class="meta-card">
-                                <div class="meta-icon"><Globe size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Languages</span>
-                                    <span class="meta-value">
-                                        {item.spoken_languages?.slice(0, 3).map((l: any) => l.english_name || l.name).join(", ") || "—"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="meta-card">
-                                <div class="meta-icon"><MapPin size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Countries</span>
-                                    <span class="meta-value">
-                                        {item.production_countries?.slice(0, 2).map((c: any) => c.name).join(", ") || "—"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="meta-card full-width">
-                                <div class="meta-icon"><Building2 size={16} /></div>
-                                <div class="meta-info">
-                                    <span class="meta-label">Production</span>
-                                    <span class="meta-value">
-                                        {item.production_companies?.slice(0, 3).map((c: any) => c.name).join(", ") || "—"}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                {:else}
-                    <slot name="tab-content" {activeTab}></slot>
-                {/if}
+                    <button on:click={() => {}} class="btn-icon-glass">
+                        <Share2 size={22} />
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="content-stage">
+        <nav class="stage-tabs">
+            {#each visibleTabs as tab}
+                <button class="tab-item" class:active={activeTab === tab.id} on:click={() => (activeTab = tab.id)}>
+                    {tab.label}
+                    {#if activeTab === tab.id}
+                        <div class="active-indicator" layout:id="active"></div>
+                    {/if}
+                </button>
+            {/each}
+        </nav>
+
+        <div class="tab-viewport">
+            {#if activeTab === "overview"}
+                <div class="overview-grid" in:fade>
+                    <div class="main-info">
+                        {#if item.tagline}
+                            <h3 class="tagline">"{item.tagline}"</h3>
+                        {/if}
+                        <p class="full-overview">{item.overview}</p>
+                    </div>
+                    <aside class="side-info">
+                        <div class="info-card">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">{item.status}</span>
+                        </div>
+                        {#if item.number_of_seasons}
+                            <div class="info-card">
+                                <span class="info-label">Seasons</span>
+                                <span class="info-value">{item.number_of_seasons}</span>
+                            </div>
+                        {/if}
+                        <div class="info-card">
+                            <span class="info-label">Original Language</span>
+                            <span class="info-value uppercase">{item.original_language}</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Production</span>
+                            <span class="info-value">{(item.production_companies || [])[0]?.name || "—"}</span>
+                        </div>
+                    </aside>
+                </div>
+            {:else}
+                <slot name="tab-content" {activeTab}></slot>
+            {/if}
+        </div>
+    </main>
 
     {#if showTrailer}
-        <TrailerModal
-            videoKey={trailerKey}
-            title={`${title} - Trailer`}
-            on:close={() => (showTrailer = false)}
-        />
+        <TrailerModal videoKey={trailerKey} title={title} on:close={() => (showTrailer = false)} />
     {/if}
 </div>
 
 <style>
-    .detail-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
+    .detail-container {
+        min-height: 100vh;
+        background: #050505;
+        color: white;
     }
 
-    /* Hero Banner */
-    .hero-banner {
+    /* Immersive Hero */
+    .stage-hero {
         position: relative;
+        height: 70vh;
+        min-height: 500px;
         width: 100%;
-        height: 480px;
-        border-radius: 32px;
         overflow: hidden;
-        background: #0a0a0a;
-        box-shadow:
-            0 32px 64px rgba(0, 0, 0, 0.4),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.05);
     }
 
-    @media (min-width: 640px) {
-        .hero-banner {
-            height: 540px;
-            border-radius: 40px;
+    @media (max-width: 640px) {
+        .stage-hero {
+            height: 60vh;
+            min-height: 400px;
         }
     }
 
-    @media (min-width: 1024px) {
-        .hero-banner {
-            height: 580px;
-            border-radius: 48px;
-        }
-    }
-
-    /* Backdrop */
-    .backdrop {
+    .stage-backdrop {
         position: absolute;
         inset: 0;
+        z-index: 0;
     }
 
-    .backdrop-image {
+    .backdrop-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        object-position: center top;
+        object-position: center 20%;
+        transform: scale(1.05);
     }
 
-    /* Vignette Effects */
-    .vignette-bottom {
+    /* Sophisticated Fades */
+    .scrim-v {
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-            to top,
-            rgba(0, 0, 0, 0.95) 0%,
-            rgba(0, 0, 0, 0.7) 20%,
-            rgba(0, 0, 0, 0.3) 40%,
-            transparent 70%
-        );
+        background: linear-gradient(to top, #050505 0%, rgba(5, 5, 5, 0.8) 15%, rgba(5, 5, 5, 0.2) 40%, transparent 70%);
     }
 
-    .vignette-left {
+    .scrim-h {
         position: absolute;
         inset: 0;
-        background: linear-gradient(
-            to right,
-            rgba(0, 0, 0, 0.5) 0%,
-            rgba(0, 0, 0, 0.2) 30%,
-            transparent 60%
-        );
+        background: linear-gradient(to right, #050505 0%, rgba(5, 5, 5, 0.6) 20%, transparent 60%);
     }
 
-    .vignette-radial {
+    .scrim-radial {
         position: absolute;
         inset: 0;
-        background: radial-gradient(
-            ellipse 120% 100% at 50% 100%,
-            rgba(0, 0, 0, 0.3) 0%,
-            transparent 50%
-        );
+        background: radial-gradient(circle at 20% 50%, rgba(5, 5, 5, 0.4) 0%, transparent 70%);
     }
 
-    /* Hero Content */
-    .hero-content {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: flex-end;
-        padding: 1.5rem;
-        gap: 1.25rem;
-    }
-
-    @media (min-width: 640px) {
-        .hero-content {
-            padding: 2rem;
-            gap: 1.5rem;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .hero-content {
-            padding: 2.5rem;
-            gap: 2rem;
-        }
-    }
-
-    /* Poster Section */
-    .poster-section {
+    /* Content Layout */
+    .stage-content {
         position: relative;
-        flex-shrink: 0;
-    }
-
-    .poster-wrapper {
-        width: 100px;
-    }
-
-    @media (min-width: 640px) {
-        .poster-wrapper {
-            width: 130px;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .poster-wrapper {
-            width: 150px;
-        }
-    }
-
-    .rating-position {
-        position: absolute;
-        top: -10px;
-        right: -10px;
         z-index: 10;
-    }
-
-    /* Actions Panel */
-    .actions-panel {
-        flex: 1;
-        display: flex;
-        align-items: flex-end;
-    }
-
-    .actions-card {
+        height: 100%;
         display: flex;
         flex-direction: column;
+        justify-content: flex-end;
+        padding: 4rem 6rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+        .stage-content { padding: 3rem 2rem; }
+    }
+
+    @media (max-width: 640px) {
+        .stage-content { padding: 2rem 1.5rem; }
+    }
+
+    .content-wrapper {
+        max-width: 700px;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .movie-logo {
+        max-width: 380px;
+        max-height: 180px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 30px rgba(0,0,0,0.5));
+    }
+
+    .movie-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        letter-spacing: -0.05em;
+        line-height: 1;
+        text-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    @media (max-width: 768px) {
+        .movie-title { font-size: 2.5rem; }
+        .movie-logo { max-width: 260px; max-height: 120px; }
+    }
+
+    @media (max-width: 480px) {
+        .movie-title { font-size: 2rem; }
+        .movie-logo { max-width: 200px; max-height: 100px; }
+    }
+
+    .meta-row {
+        display: flex;
+        align-items: center;
         gap: 1rem;
-        padding: 1.25rem 1.5rem;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow:
-            0 24px 48px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        max-width: fit-content;
-    }
-
-    .media-title {
-        font-size: 1.25rem;
+        font-size: 1rem;
         font-weight: 700;
-        color: white;
-        margin: 0;
-        line-height: 1.2;
-        max-width: 280px;
+        color: rgba(255,255,255,0.7);
     }
 
-    @media (min-width: 640px) {
-        .media-title {
-            font-size: 1.5rem;
-            max-width: 360px;
-        }
-    }
-
-    @media (min-width: 1024px) {
-        .media-title {
-            font-size: 1.75rem;
-            max-width: 480px;
-        }
-    }
-
-    .actions-row {
+    .rating-badge {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        color: #facc15;
+    }
+
+    .dot {
+        width: 4px;
+        height: 4px;
+        border-radius: 40px;
+        background: rgba(255,255,255,0.2);
+    }
+
+    .genre-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .genre-tag {
+        padding: 0.4rem 1rem;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 40px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        backdrop-filter: blur(10px);
+    }
+
+    .overview-snippet {
+        font-size: 1.125rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.6);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Modern Actions */
+    .actions-stage {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
         flex-wrap: wrap;
     }
 
-    .btn-primary {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        height: 2.75rem;
-        padding: 0 1.5rem;
-        background: #facc15;
-        color: black;
-        font-size: 0.875rem;
-        font-weight: 800;
-        border-radius: 14px;
-        text-decoration: none;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 16px rgba(250, 204, 21, 0.25);
-    }
-
-    .btn-primary:hover {
-        transform: scale(1.03);
-        box-shadow: 0 8px 24px rgba(250, 204, 21, 0.35);
-    }
-
-    .btn-primary:active {
-        transform: scale(0.97);
-    }
-
-    .btn-secondary {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        height: 2.75rem;
-        padding: 0 1rem;
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 0.8125rem;
-        font-weight: 700;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 14px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    .btn-secondary:active {
-        transform: scale(0.97);
-    }
-
-    .divider {
-        width: 1px;
-        height: 1.5rem;
-        background: rgba(255, 255, 255, 0.1);
-        margin: 0 0.25rem;
-    }
-
-    .btn-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.75rem;
-        height: 2.75rem;
-        background: rgba(255, 255, 255, 0.06);
-        color: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 14px;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn-icon:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-    }
-
-    .btn-icon:active {
-        transform: scale(0.95);
-    }
-
-    .btn-icon.active {
-        background: rgba(250, 204, 21, 0.15);
-        color: #facc15;
-        border-color: rgba(250, 204, 21, 0.3);
-    }
-
-    .btn-icon.busy {
-        opacity: 0.6;
-        pointer-events: none;
-    }
-
-    .type-label {
-        display: flex;
-        align-items: center;
-        height: 2.75rem;
-        padding-left: 0.75rem;
-    }
-
-    .type-label span {
-        writing-mode: vertical-rl;
-        transform: rotate(180deg);
-        font-size: 0.625rem;
-        font-weight: 800;
-        letter-spacing: 0.2em;
-        color: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Tabs Section */
-    .tabs-section {
-        width: 100%;
-    }
-
-    .tabs-container {
-        background: rgba(10, 10, 10, 0.6);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border-radius: 28px;
-        border: 1px solid rgba(255, 255, 255, 0.06);
-        padding: 1.5rem;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .tab-nav {
-        display: flex;
-        gap: 0.5rem;
-        padding-bottom: 1rem;
-        margin-bottom: 1.5rem;
-        overflow-x: auto;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .tab-btn {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 0.5rem 1rem;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: rgba(255, 255, 255, 0.5);
-        cursor: pointer;
-        white-space: nowrap;
-        border-radius: 10px;
-        transition: all 0.2s ease;
-    }
-
-    .tab-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: rgba(255, 255, 255, 0.8);
-    }
-
-    .tab-btn.active {
-        background: rgba(250, 204, 21, 0.15);
-        border-color: rgba(250, 204, 21, 0.3);
-        color: #facc15;
-    }
-
-    .tab-content {
-        max-height: 500px;
-        overflow-y: auto;
-        padding-right: 0.5rem;
-    }
-
-    .tab-content::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .tab-content::-webkit-scrollbar-track {
-        background: transparent;
-    }
-
-    .tab-content::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 4px;
-    }
-
-    /* Overview Content */
-    .overview-content {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-    }
-
-    .tagline {
-        font-size: 0.9375rem;
-        font-style: italic;
-        color: rgba(250, 204, 21, 0.7);
-        margin: 0;
-        padding-left: 0.5rem;
-        border-left: 2px solid rgba(250, 204, 21, 0.3);
-    }
-
-    .overview-text {
-        font-size: 0.9375rem;
-        line-height: 1.7;
-        color: rgba(255, 255, 255, 0.75);
-        margin: 0;
-    }
-
-    .metadata-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.75rem;
-    }
-
-    @media (min-width: 640px) {
-        .metadata-grid {
-            grid-template-columns: repeat(3, 1fr);
+    @media (max-width: 480px) {
+        .actions-stage {
+            gap: 0.75rem;
+        }
+        .btn-watch {
+            width: 100%;
+            justify-content: center;
         }
     }
 
-    .meta-card {
+    .btn-watch {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
+        gap: 1rem;
+        height: 4.5rem;
+        padding: 0 3rem;
+        background: white;
+        color: black;
+        border-radius: 20px;
+        font-size: 1.25rem;
+        font-weight: 900;
+        text-decoration: none;
+        transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        box-shadow: 0 20px 40px -10px rgba(255,255,255,0.3);
+    }
+
+    .btn-watch:hover {
+        transform: scale(1.05);
+        background: #facc15;
+        box-shadow: 0 25px 50px -10px rgba(250, 204, 21, 0.4);
+    }
+
+    .btn-glass {
+        display: flex;
+        align-items: center;
         gap: 0.75rem;
-        padding: 0.875rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 14px;
-        transition: all 0.2s ease;
+        height: 4.5rem;
+        padding: 0 2rem;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        font-size: 1.125rem;
+        font-weight: 800;
+        color: white;
+        transition: all 0.3s;
     }
 
-    .meta-card:hover {
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.08);
+    .btn-glass:hover {
+        background: rgba(255,255,255,0.2);
+        border-color: rgba(255,255,255,0.3);
     }
 
-    .meta-card.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .meta-icon {
+    .btn-icon-glass {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 10px;
-        background: rgba(250, 204, 21, 0.08);
-        color: rgba(250, 204, 21, 0.9);
-        flex-shrink: 0;
+        height: 4.5rem;
+        width: 4.5rem;
+        background: rgba(255,255,255,0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 20px;
+        color: white;
+        transition: all 0.3s;
     }
 
-    .meta-info {
+    .btn-icon-glass:hover {
+        background: rgba(255,255,255,0.2);
+        color: #facc15;
+    }
+
+    .btn-icon-glass.active {
+        background: rgba(250, 204, 21, 0.15);
+        border-color: rgba(250, 204, 21, 0.4);
+        color: #facc15;
+    }
+
+    /* Content Stage */
+    .content-stage {
+        padding: 4rem 6rem;
+        max-width: 1600px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 1024px) {
+        .content-stage { padding: 3rem 2rem; }
+    }
+
+    @media (max-width: 640px) {
+        .content-stage { padding: 2rem 1.5rem; }
+    }
+
+    .stage-tabs {
+        display: flex;
+        gap: 3rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        margin-bottom: 3rem;
+        overflow-x: auto;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .stage-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    @media (max-width: 640px) {
+        .stage-tabs {
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .tab-item {
+            font-size: 1.125rem;
+        }
+    }
+
+    .tab-item {
+        position: relative;
+        padding: 1rem 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: rgba(255,255,255,0.4);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .tab-item:hover { color: white; }
+    .tab-item.active { color: white; }
+
+    .active-indicator {
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: #facc15;
+        border-radius: 10px 10px 0 0;
+        box-shadow: 0 0 15px #facc15/50;
+    }
+
+    /* Overview Styles */
+    .overview-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 4rem;
+    }
+
+    @media (max-width: 768px) {
+        .overview-grid { grid-template-columns: 1fr; gap: 2rem; }
+    }
+
+    .tagline {
+        font-size: 1.75rem;
+        font-weight: 800;
+        font-style: italic;
+        color: #facc15;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .full-overview {
+        font-size: 1.25rem;
+        line-height: 1.8;
+        color: rgba(255,255,255,0.7);
+    }
+
+    .side-info {
         display: flex;
         flex-direction: column;
-        gap: 0.125rem;
-        min-width: 0;
+        gap: 1.5rem;
     }
 
-    .meta-label {
-        font-size: 0.625rem;
-        font-weight: 700;
+    .info-card {
+        padding: 1.5rem;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .info-label {
+        font-size: 0.875rem;
+        font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: rgba(255, 255, 255, 0.35);
+        letter-spacing: 0.1em;
+        color: rgba(255,255,255,0.3);
     }
 
-    .meta-value {
-        font-size: 0.8125rem;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.85);
-        line-height: 1.3;
-    }
-
-    .meta-value.genres {
-        color: #facc15;
+    .info-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: white;
     }
 </style>

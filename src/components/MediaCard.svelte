@@ -11,41 +11,43 @@
   $: imageSrc = getPosterUrl(posterPath, "w342");
 </script>
 
-<a use:link {href} class="group w-[145px] shrink-0">
+<a use:link {href} class="group w-[140px] shrink-0 sm:w-[160px]">
   <div
-    class="relative overflow-hidden rounded-2xl bg-zinc-900/50 ring-1 ring-white/5 transition-all duration-300 group-hover:ring-yellow-400/30 group-hover:scale-[1.03] group-hover:shadow-2xl group-hover:shadow-yellow-400/10"
+    class="relative aspect-[2/3] overflow-hidden rounded-[20px] bg-white/[0.02] ring-1 ring-white/10 transition-all duration-500 group-hover:ring-accent/40 group-hover:scale-[1.05] group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
   >
-    <div class="aspect-[2/3] overflow-hidden">
-      <img
-        src={imageSrc}
-        alt={title}
-        class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-        loading="lazy"
-      />
-    </div>
+    <img
+      src={imageSrc}
+      alt={title}
+      class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+      loading="lazy"
+    />
     
-    <!-- Gradient overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    <!-- Sophisticated Overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-80"></div>
     
-    <!-- Play button overlay -->
-    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400 text-black shadow-2xl shadow-yellow-400/40">
+    <!-- Quick Actions / Hover Info -->
+    <div class="absolute inset-0 flex flex-col items-center justify-center opacity-0 transition-all duration-500 group-hover:opacity-100">
+      <div class="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-black shadow-2xl shadow-accent/40 transition-transform duration-500 scale-75 group-hover:scale-100">
         <Play size={20} fill="currentColor" />
       </div>
     </div>
     
-    <!-- Shine effect -->
-    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+    <!-- Shine Effect -->
+    <div class="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100">
+      <div class="absolute inset-0 -translate-x-full rotate-12 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-1000 group-hover:translate-x-full"></div>
     </div>
   </div>
 
-  <div class="mt-2.5 px-0.5">
-    <div class="line-clamp-1 text-[13px] font-semibold text-white/90 group-hover:text-yellow-400 transition-colors duration-300">
+  <div class="mt-3 px-1">
+    <div class="line-clamp-1 text-[13px] font-bold tracking-tight text-white/90 transition-colors duration-300 group-hover:text-accent">
       {title}
     </div>
     {#if meta}
-      <div class="mt-1 line-clamp-1 text-[11px] font-medium text-white/40 group-hover:text-white/60 transition-colors duration-300">{meta}</div>
+      <div class="mt-1 flex items-center gap-2">
+        <span class="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] font-bold text-white/40 ring-1 ring-white/10 group-hover:text-white/60">
+          {meta}
+        </span>
+      </div>
     {/if}
   </div>
 </a>

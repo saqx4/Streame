@@ -224,33 +224,32 @@
 
 {#if current}
   <div
-    class="relative h-[450px] w-full overflow-hidden rounded-[40px] bg-zinc-950 ring-1 ring-white/5 sm:h-[550px]"
+    class="relative h-[400px] w-full overflow-hidden rounded-[40px] bg-zinc-950 ring-1 ring-white/10 sm:h-[500px] animate-in"
   >
-    <!-- Backdrop -->
-    <div class="absolute inset-0">
+    <!-- Backdrop with Parallax-like effect -->
+    <div class="absolute inset-0 overflow-hidden">
       {#key current.id}
         {#if current.backdropPath}
           <img
             src={getBackdropUrl(current.backdropPath, "original")}
             alt={current.title}
-            class="h-full w-full object-cover scale-105"
-            in:fade={{ duration: 600 }}
-            out:fade={{ duration: 400 }}
+            class="h-full w-full object-cover scale-110 motion-safe:animate-[mesh_30s_ease-in-out_infinite]"
+            in:fade={{ duration: 1000 }}
+            out:fade={{ duration: 800 }}
           />
         {/if}
       {/key}
-      <!-- Enhanced Gradients -->
+      <!-- Enhanced Multi-layer Gradients -->
       <div
-        class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-black"
+        class="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/20 to-[#050505]"
       ></div>
       <div
-        class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"
+        class="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"
       ></div>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black"></div>
-      <!-- Radial vignette -->
-      <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_black_100%)] opacity-40"></div>
-      <!-- Noise texture overlay -->
-      <div class="absolute inset-0 opacity-[0.015] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]"></div>
+      <div class="absolute inset-0 bg-gradient-to-b from-[#050505]/40 via-transparent to-[#050505]"></div>
+      
+      <!-- Subtle Texture Overlay -->
+      <div class="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none"></div>
     </div>
 
     <!-- Content -->
@@ -258,84 +257,86 @@
       {#key current.id}
         <div
           class="flex flex-col items-center gap-6"
-          in:fly={{ y: 20, duration: 500 }}
-          out:fade={{ duration: 300 }}
+          in:fly={{ y: 20, duration: 800, delay: 200 }}
+          out:fade={{ duration: 400 }}
         >
           <!-- Title/Logo Area -->
           <div
-            class="flex h-24 items-center justify-center px-6 text-center sm:h-32"
+            class="flex h-24 items-center justify-center px-8 text-center sm:h-32"
           >
             {#if logoUrl}
               <img
                 src={logoUrl}
                 alt={current.title}
-                class="max-h-full max-w-[280px] object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] sm:max-w-[400px]"
+                class="max-h-full max-w-[320px] object-contain drop-shadow-[0_0_50px_rgba(0,0,0,0.8)] sm:max-w-[500px] float"
               />
             {:else}
               <h2
-                class="text-2xl font-extrabold text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] sm:text-4xl lg:text-5xl"
+                class="text-3xl font-black text-white drop-shadow-[0_4px_20px_rgba(0,0,0,0.8)] sm:text-5xl lg:text-6xl tracking-tighter"
               >
                 {current.title}
               </h2>
             {/if}
           </div>
 
-          <!-- Floating Control Bar -->
+          <!-- Floating Premium Control Bar -->
           <div
-            class="flex items-center gap-1.5 rounded-[24px] bg-black/50 p-1.5 backdrop-blur-3xl ring-1 ring-white/10 shadow-2xl shadow-black/50 sm:gap-2 sm:rounded-[28px] sm:p-2"
+            class="flex items-center gap-2 rounded-[28px] bg-white/[0.03] p-1.5 backdrop-blur-3xl ring-1 ring-white/10 shadow-[0_20px_50px_rgba(0,20,0,0.5)] sm:gap-2.5 sm:p-2 flex-wrap justify-center"
           >
             <a
               use:link
               {href}
-              class="group flex h-9 items-center gap-1.5 rounded-xl bg-yellow-400 px-4 text-xs font-black text-black shadow-lg shadow-yellow-400/30 transition-all hover:shadow-yellow-400/50 hover:scale-105 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
+              class="group flex h-9 items-center gap-2 rounded-[16px] bg-white px-5 text-xs font-black text-black transition-all hover:bg-accent hover:scale-105 active:scale-95 sm:h-12 sm:gap-2.5 sm:px-7 sm:text-sm whitespace-nowrap"
             >
-              <Play size={16} fill="currentColor" class="transition-transform group-hover:translate-x-0.5" />
-              Watch
+              <Play size={18} fill="currentColor" class="transition-transform group-hover:translate-x-1" />
+              Watch Now
             </a>
 
             <a
               use:link
               {href}
-              class="flex h-9 items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-4 text-xs font-bold text-white/90 transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 sm:h-11 sm:gap-2 sm:px-6 sm:text-sm"
+              class="flex h-9 items-center gap-2 rounded-[16px] border border-white/10 bg-white/5 px-5 text-xs font-bold text-white transition-all hover:bg-white/10 hover:border-white/20 active:scale-95 sm:h-12 sm:gap-2.5 sm:px-7 sm:text-sm whitespace-nowrap"
             >
+              <Info size={18} />
               Details
             </a>
 
-            <div class="h-5 w-px bg-white/10 mx-0.5 sm:h-6 sm:mx-1"></div>
+            <div class="h-5 w-px bg-white/10 mx-0.5 sm:h-7 hidden xs:block"></div>
 
-            <button
-              class={`flex h-9 w-9 items-center justify-center rounded-xl border transition-all active:scale-95 sm:h-11 sm:w-11 ${
-                isInWatchlist
-                  ? "border-yellow-400/40 bg-yellow-400/15 text-yellow-300 hover:bg-yellow-400/25"
-                  : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
-              } ${watchlistBusy ? "opacity-60" : ""}`}
-              on:click={toggleWatchlist}
-              aria-label="Toggle watchlist"
-            >
-              <Bookmark size={18} />
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                class={`flex h-9 w-9 items-center justify-center rounded-[14px] border transition-all active:scale-95 sm:h-12 sm:w-12 ${
+                  isInWatchlist
+                    ? "border-accent/50 bg-accent/10 text-accent"
+                    : "border-white/10 bg-white/5 text-white/60 hover:text-white hover:border-white/20"
+                } ${watchlistBusy ? "opacity-60" : ""}`}
+                on:click={toggleWatchlist}
+              >
+                <Bookmark size={20} fill={isInWatchlist ? "currentColor" : "none"} />
+              </button>
 
-            <button
-              on:click={handleShare}
-              class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20 transition-all active:scale-95 sm:h-11 sm:w-11"
-            >
-              <Share2 size={18} />
-            </button>
+              <button
+                on:click={handleShare}
+                class="flex h-9 w-9 items-center justify-center rounded-[14px] border border-white/10 bg-white/5 text-white/60 hover:text-white hover:border-white/20 transition-all active:scale-95 sm:h-12 sm:w-12"
+              >
+                <Share2 size={20} />
+              </button>
+            </div>
           </div>
         </div>
       {/key}
 
+      <!-- Indicators -->
       {#if heroItems().length > 1}
-        <div class="mt-8 flex items-center gap-2">
+        <div class="mt-10 flex items-center gap-3">
           {#each heroItems() as it, i (it.id)}
             <button
-              class={`h-2 rounded-full transition-all duration-300 ${
+              class={`h-1.5 rounded-full transition-all duration-500 ${
                 i === safeIndex
-                  ? "w-8 bg-yellow-400 shadow-lg shadow-yellow-400/30"
-                  : "w-2 bg-white/20 hover:bg-white/40"
+                  ? "w-10 bg-accent shadow-[0_0_15px_rgba(250,204,21,0.5)]"
+                  : "w-3 bg-white/10 hover:bg-white/30"
               }`}
               on:click={() => (index = i)}
-              aria-label={`Hero item ${i + 1}`}
             ></button>
           {/each}
         </div>

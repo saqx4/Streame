@@ -10,16 +10,16 @@
 
 <!-- Desktop Sidebar -->
 <aside
-  class="fixed left-0 top-0 z-50 hidden h-screen w-[60px] border-r border-white/5 bg-black/40 backdrop-blur-2xl sm:block"
+  class="fixed left-3 top-1/2 z-50 hidden h-[fit-content] -translate-y-1/2 flex-col gap-1.5 rounded-[20px] border border-white/10 bg-black/40 p-1.5 backdrop-blur-3xl sm:flex"
 >
-  <div class="flex h-full flex-col items-center gap-2 py-3">
+  <div class="flex flex-col items-center gap-2">
     <a
       use:link
       href="/"
-      class={`group flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="Home"
     >
@@ -29,10 +29,10 @@
     <a
       use:link
       href="/search"
-      class={`group flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/search", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="Search"
     >
@@ -42,10 +42,10 @@
     <a
       use:link
       href="/movies"
-      class={`group flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/movies", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="Movies"
     >
@@ -55,10 +55,10 @@
     <a
       use:link
       href="/tv-shows"
-      class={`group flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/tv-shows", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="TV Shows"
     >
@@ -68,25 +68,25 @@
     <a
       use:link
       href="/watchlist"
-      class={`group flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/watchlist", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="Watchlist"
     >
       <Heart size={18} class="transition-transform group-hover:scale-110" />
     </a>
 
-    <div class="flex-1"></div>
+    <div class="h-px w-5 bg-white/10 my-0.5"></div>
 
     <a
       use:link
       href="/settings"
-      class={`group mb-3 flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
+      class={`group flex h-10 w-10 items-center justify-center rounded-[14px] transition-all duration-300 ${
         isActive("/settings", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 ring-1 ring-yellow-400"
-          : "bg-white/5 text-white/60 ring-1 ring-white/5 hover:bg-white/10 hover:text-white hover:ring-white/10"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30 scale-105"
+          : "text-white/40 hover:bg-white/10 hover:text-white"
       }`}
       aria-label="Settings"
     >
@@ -97,92 +97,73 @@
 
 <!-- Mobile Navigation -->
 <nav
-  class="fixed bottom-0 left-0 right-0 z-50 border-t border-white/5 bg-black/60 backdrop-blur-2xl sm:hidden"
-  style="padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);"
+  class="fixed bottom-4 left-4 right-4 z-50 overflow-hidden rounded-[28px] border border-white/10 bg-black/50 backdrop-blur-3xl sm:hidden"
+  style="margin-bottom: env(safe-area-inset-bottom);"
 >
-  <div class="mx-auto grid max-w-[1400px] grid-cols-6 gap-1 px-2 pt-2">
+  <div class="flex items-center justify-around p-2">
     <a
       use:link
       href="/"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
+      class={`group flex flex-col items-center justify-center rounded-2xl px-3 py-2 transition-all duration-300 ${
         isActive("/", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+          : "text-white/40 hover:text-white"
       }`}
       aria-label="Home"
     >
-      <Home size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">Home</span>
+      <Home size={20} />
     </a>
 
     <a
       use:link
       href="/search"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
+      class={`group flex flex-col items-center justify-center rounded-2xl px-3 py-2 transition-all duration-300 ${
         isActive("/search", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+          : "text-white/40 hover:text-white"
       }`}
       aria-label="Search"
     >
-      <Search size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">Search</span>
+      <Search size={20} />
     </a>
 
     <a
       use:link
       href="/movies"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
+      class={`group flex flex-col items-center justify-center rounded-2xl px-3 py-2 transition-all duration-300 ${
         isActive("/movies", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+          : "text-white/40 hover:text-white"
       }`}
       aria-label="Movies"
     >
-      <Film size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">Movies</span>
+      <Film size={20} />
     </a>
 
     <a
       use:link
       href="/tv-shows"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
+      class={`group flex flex-col items-center justify-center rounded-2xl px-3 py-2 transition-all duration-300 ${
         isActive("/tv-shows", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+          : "text-white/40 hover:text-white"
       }`}
       aria-label="TV Shows"
     >
-      <Tv size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">TV</span>
+      <Tv size={20} />
     </a>
 
     <a
       use:link
       href="/watchlist"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
+      class={`group flex flex-col items-center justify-center rounded-2xl px-3 py-2 transition-all duration-300 ${
         isActive("/watchlist", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
+          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/20"
+          : "text-white/40 hover:text-white"
       }`}
       aria-label="Watchlist"
     >
-      <Heart size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">List</span>
-    </a>
-
-    <a
-      use:link
-      href="/settings"
-      class={`group flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 text-[10px] font-semibold transition-all duration-200 ${
-        isActive("/settings", $location)
-          ? "bg-yellow-400 text-black shadow-lg shadow-yellow-400/30"
-          : "text-white/50 hover:bg-white/5 hover:text-white/80"
-      }`}
-      aria-label="Settings"
-    >
-      <Settings size={18} class="transition-transform group-active:scale-90" />
-      <span class="mt-1">Settings</span>
+      <Heart size={20} />
     </a>
   </div>
 </nav>
