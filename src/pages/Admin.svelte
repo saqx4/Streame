@@ -518,15 +518,21 @@
   <div 
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 animate-in fade-in duration-200" 
     role="button"
-    tabindex="-1"
+    tabindex="0"
+    aria-label="Close dialog"
     on:click={closeModal}
-    on:keydown={(e) => { if (e.key === 'Escape') closeModal(); }}
+    on:keydown={(e) => {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === 'Escape') closeModal();
+    }}
   >
     <div 
       class="w-full max-w-xl rounded-3xl bg-[#0f0f0f] border border-white/10 shadow-2xl overflow-hidden" 
       role="dialog"
       aria-modal="true"
       tabindex="-1"
+      on:click|stopPropagation
+      on:keydown|stopPropagation={() => {}}
     >
       
       <div class="flex items-center justify-between border-b border-white/10 px-6 py-5 bg-white/[0.02]">
@@ -691,5 +697,3 @@
   }
 </style>
 
-
-      <!-- Presets Section (only for new servers) -->

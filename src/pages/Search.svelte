@@ -198,7 +198,7 @@
         type="text"
         bind:value={query}
         on:keydown={handleKeydown}
-        placeholder="the office"
+        placeholder="Search anything..."
         class="relative w-full rounded-full border-none bg-zinc-900/80 px-6 py-4 text-sm font-medium text-white placeholder:text-white/30 focus:ring-2 focus:ring-yellow-400/30 outline-none shadow-2xl shadow-black/50 transition-all"
       />
       <div
