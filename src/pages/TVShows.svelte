@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { tmdbService, getPosterUrl } from '../services/tmdb'
+  import { tmdbService } from '../services/tmdb'
   import type { TVShow } from '../types'
-  import { link } from 'svelte-spa-router'
+  import MediaCard from '../components/MediaCard.svelte'
+  import { Tv, ChevronLeft, ChevronRight } from 'lucide-svelte'
 
   let items: TVShow[] = []
   let loading = true
@@ -16,6 +17,7 @@
       items = res.results
       page = res.page
       totalPages = res.total_pages
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     } finally {
       loading = false
     }
@@ -26,58 +28,88 @@
   })
 </script>
 
-<section class="space-y-6">
-  <div class="flex flex-wrap items-end justify-between gap-3">
-    <div>
-      <h1 class="text-2xl font-semibold">TV Shows</h1>
-      <p class="mt-1 text-sm text-white/60">Popular TV shows from TMDB</p>
+<section class="space-y-10 pb-12 animate-in">
+  <div class="flex flex-wrap items-end justify-between gap-6 px-2">
+    <div class="space-y-2">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-black shadow-lg shadow-accent/20">
+          <Tv size={20} />
+        </div>
+        <h1 class="text-3xl font-black tracking-tight text-white sm:text-4xl">TV Shows</h1>
+      </div>
+      <p class="text-sm font-bold uppercase tracking-widest text-white/30 ml-1">Binge the best series and shows currently airing</p>
     </div>
 
-    <div class="flex items-center gap-2">
+    <!-- Pagination -->
+    <div class="flex items-center gap-4 bg-white/[0.03] border border-white/5 p-2 rounded-2xl backdrop-blur-3xl shadow-2xl">
       <button
-        class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-40"
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white/40 ring-1 ring-white/10 hover:bg-accent hover:text-black hover:ring-accent transition-all duration-300 disabled:opacity-20 active:scale-95"
         on:click={() => load(Math.max(1, page - 1))}
         disabled={loading || page <= 1}
       >
-        Prev
+        <ChevronLeft size={18} />
       </button>
-      <div class="text-sm text-white/60">Page {page} / {totalPages}</div>
+      <div class="px-2 text-xs font-black text-white/40 tracking-widest">
+        <span class="text-white/80">{page}</span> / {totalPages}
+      </div>
       <button
-        class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 hover:bg-white/10 disabled:opacity-40"
+        class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 text-white/40 ring-1 ring-white/10 hover:bg-accent hover:text-black hover:ring-accent transition-all duration-300 disabled:opacity-20 active:scale-95"
         on:click={() => load(Math.min(totalPages, page + 1))}
         disabled={loading || page >= totalPages}
       >
-        Next
+        <ChevronRight size={18} />
       </button>
     </div>
   </div>
 
   {#if loading}
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
-      {#each Array(18) as _}
-        <div class="aspect-[2/3] animate-pulse rounded-xl bg-white/5"></div>
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2">
+      {#each Array(12) as _}
+        <div class="space-y-4">
+          <div class="aspect-video animate-pulse rounded-2xl bg-gradient-to-br from-white/5 to-transparent ring-1 ring-white/5"></div>
+          <div class="space-y-2">
+            <div class="h-4 w-3/4 animate-pulse rounded-lg bg-white/5"></div>
+            <div class="h-3 w-1/2 animate-pulse rounded-lg bg-white/5"></div>
+          </div>
+        </div>
       {/each}
     </div>
   {:else}
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2">
       {#each items as tv (tv.id)}
-        <a use:link href={`/tv/${tv.id}`} class="group overflow-hidden rounded-xl border border-white/10 bg-white/5">
-          <div class="aspect-[2/3] overflow-hidden">
-            <img
-              src={getPosterUrl(tv.poster_path, 'w342')}
-              alt={tv.name}
-              class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              loading="lazy"
-            />
-          </div>
-          <div class="p-3">
-            <div class="line-clamp-1 text-sm font-medium">{tv.name}</div>
-            <div class="mt-1 text-xs text-white/60">
-              {tv.first_air_date ? tv.first_air_date.slice(0, 4) : '—'} • ⭐ {tv.vote_average?.toFixed?.(1) ?? tv.vote_average}
-            </div>
-          </div>
-        </a>
+        <MediaCard
+          class="w-full"
+          title={tv.name}
+          posterPath={tv.poster_path}
+          backdropPath={tv.backdrop_path}
+          href={`/tv/${tv.id}`}
+          meta={tv.first_air_date ? tv.first_air_date.slice(0, 4) : null}
+          rating={tv.vote_average}
+        />
       {/each}
+    </div>
+
+    <!-- Bottom Pagination -->
+    <div class="flex justify-center pt-12">
+      <div class="flex items-center gap-6 bg-white/[0.03] border border-white/5 p-3 rounded-[32px] backdrop-blur-3xl shadow-2xl">
+        <button
+          class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white/40 ring-1 ring-white/10 hover:bg-accent hover:text-black hover:ring-accent transition-all duration-300 disabled:opacity-20 active:scale-95"
+          on:click={() => load(Math.max(1, page - 1))}
+          disabled={loading || page <= 1}
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <div class="px-4 text-sm font-black text-white/40 tracking-[0.2em] uppercase">
+          Page <span class="text-white/80">{page}</span> of {totalPages}
+        </div>
+        <button
+          class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-white/40 ring-1 ring-white/10 hover:bg-accent hover:text-black hover:ring-accent transition-all duration-300 disabled:opacity-20 active:scale-95"
+          on:click={() => load(Math.min(totalPages, page + 1))}
+          disabled={loading || page >= totalPages}
+        >
+          <ChevronRight size={20} />
+        </button>
+      </div>
     </div>
   {/if}
 </section>

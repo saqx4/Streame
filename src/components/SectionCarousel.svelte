@@ -6,8 +6,10 @@
     id: number
     title: string
     posterPath: string | null
+    backdropPath?: string | null
     href: string
     meta?: string | null
+    rating?: number | null
   }
 
   export let title: string
@@ -45,14 +47,14 @@
     <div class="flex items-center gap-2 pb-1">
       <div class="hidden items-center gap-1.5 sm:flex">
         <button
-          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-300 active:scale-95"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-accent hover:ring-accent hover:text-black transition-all duration-300 active:scale-95"
           on:click={() => scrollByAmount(-1)}
           aria-label="Scroll left"
         >
           <ChevronLeft size={16} class="transition-transform group-hover:-translate-x-0.5" />
         </button>
         <button
-          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-yellow-400 hover:ring-yellow-400 hover:text-black transition-all duration-300 active:scale-95"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-accent hover:ring-accent hover:text-black transition-all duration-300 active:scale-95"
           on:click={() => scrollByAmount(1)}
           aria-label="Scroll right"
         >
@@ -69,21 +71,28 @@
     
     <div
       bind:this={scroller}
-      class="no-scrollbar flex gap-5 overflow-x-auto pb-6 pr-4 pl-2 pt-2 transition-all"
+      class="no-scrollbar flex gap-6 overflow-x-auto pb-8 pr-4 pl-2 pt-2 transition-all"
     >
       {#if loading}
         {#each Array(skeletonCount) as _, i (i)}
-          <div class="w-[140px] shrink-0 sm:w-[160px]">
-            <div class="aspect-[2/3] animate-pulse rounded-[20px] bg-gradient-to-br from-white/10 to-transparent ring-1 ring-white/5"></div>
-            <div class="mt-3 space-y-2">
-              <div class="h-3.5 w-[120px] animate-pulse rounded-lg bg-white/5"></div>
-              <div class="h-2.5 w-[50px] animate-pulse rounded-lg bg-white/5"></div>
+          <div class="w-[240px] shrink-0 sm:w-[280px] lg:w-[320px]">
+            <div class="aspect-video animate-pulse rounded-2xl bg-gradient-to-br from-white/5 to-transparent ring-1 ring-white/5"></div>
+            <div class="mt-4 space-y-2">
+              <div class="h-4 w-[180px] animate-pulse rounded-lg bg-white/5"></div>
+              <div class="h-3 w-[100px] animate-pulse rounded-lg bg-white/5"></div>
             </div>
           </div>
         {/each}
       {:else}
         {#each items as item (item.id)}
-          <MediaCard title={item.title} posterPath={item.posterPath} href={item.href} meta={item.meta ?? null} />
+          <MediaCard 
+            title={item.title} 
+            posterPath={item.posterPath} 
+            backdropPath={item.backdropPath}
+            href={item.href} 
+            meta={item.meta ?? null} 
+            rating={item.rating ?? null} 
+          />
         {/each}
       {/if}
     </div>

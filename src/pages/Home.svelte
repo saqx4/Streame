@@ -13,8 +13,10 @@
     id: number;
     title: string;
     posterPath: string | null;
+    backdropPath?: string | null;
     href: string;
     meta?: string | null;
+    rating?: number | null;
   };
 
   const platforms = [
@@ -49,8 +51,10 @@
       id: m.id,
       title: m.title,
       posterPath: m.poster_path,
+      backdropPath: m.backdrop_path,
       href: `/movie/${m.id}`,
       meta: m.release_date ? m.release_date.slice(0, 4) : null,
+      rating: m.vote_average,
     }));
 
   const mapTV = (items: TVShow[]): Item[] =>
@@ -58,8 +62,10 @@
       id: t.id,
       title: t.name,
       posterPath: t.poster_path,
+      backdropPath: t.backdrop_path,
       href: `/tv/${t.id}`,
       meta: t.first_air_date ? t.first_air_date.slice(0, 4) : null,
+      rating: t.vote_average,
     }));
 
   onMount(async () => {

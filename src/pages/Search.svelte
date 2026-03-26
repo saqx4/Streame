@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import { tmdbService, getPosterUrl } from "../services/tmdb";
+  import MediaCard from "../components/MediaCard.svelte";
   import { link } from "svelte-spa-router";
   import { LayoutGrid, Film, Tv } from "lucide-svelte";
 
@@ -75,16 +76,17 @@
       id: item.id,
       title: isMovie ? item.title : item.name,
       posterPath: item.poster_path ?? null,
+      backdropPath: item.backdrop_path ?? null,
       href: isMovie ? `/movie/${item.id}` : `/tv/${item.id}`,
       typeLabel: isMovie ? "Movie" : "Tv",
-      rating: item.vote_average ? item.vote_average.toFixed(1) : "—",
+      rating: item.vote_average ? item.vote_average : 0,
       year: isMovie
         ? item.release_date
           ? String(item.release_date).slice(0, 4)
-          : "—"
+          : null
         : item.first_air_date
           ? String(item.first_air_date).slice(0, 4)
-          : "—",
+          : null,
       lang: String(item.original_language || "EN").toUpperCase(),
       genre: item.genre_ids?.length ? genreMap[item.genre_ids[0]] : "General",
     };
@@ -338,51 +340,30 @@
       <p class="text-red-400 text-sm sm:text-base font-bold">{error}</p>
     </div>
   {:else if loading}
-    <div class="grid w-full grid-cols-1 gap-4 sm:gap-8 md:grid-cols-2 xl:grid-cols-3 px-2 sm:px-0">
-      {#each Array(6) as _}
-        <div class="h-32 sm:h-48 animate-pulse rounded-[24px] sm:rounded-[32px] bg-white/[0.03] ring-1 ring-white/10"></div>
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2 sm:px-0 w-full">
+      {#each Array(12) as _}
+        <div class="space-y-4">
+          <div class="aspect-video animate-pulse rounded-2xl bg-gradient-to-br from-white/5 to-transparent ring-1 ring-white/5"></div>
+          <div class="space-y-2">
+            <div class="h-4 w-3/4 animate-pulse rounded-lg bg-white/5"></div>
+            <div class="h-3 w-1/2 animate-pulse rounded-lg bg-white/5"></div>
+          </div>
+        </div>
       {/each}
     </div>
   {:else if results.length > 0}
-    <div class="grid w-full grid-cols-1 gap-4 sm:gap-8 md:grid-cols-2 xl:grid-cols-3 px-2 sm:px-0">
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2 sm:px-0 w-full">
       {#each results as item (item.id)}
         {@const res = toResult(item)}
-        <a
-          use:link
+        <MediaCard
+          class="w-full"
+          title={res.title}
+          posterPath={res.posterPath}
+          backdropPath={res.backdropPath}
           href={res.href}
-          class="group relative flex items-center gap-4 sm:gap-6 rounded-[24px] sm:rounded-[32px] bg-white/[0.02] p-3 sm:p-4 ring-1 ring-white/5 transition-all duration-500 hover:bg-white/[0.05] hover:ring-yellow-400/30 hover:translate-y-[-4px] hover:shadow-2xl hover:shadow-black/50"
-        >
-          <!-- Poster -->
-          <div class="relative h-28 w-20 sm:h-40 sm:w-28 flex-none overflow-hidden rounded-[16px] sm:rounded-[20px] shadow-xl ring-1 ring-white/10 transition-transform duration-500 group-hover:scale-105">
-            <img
-              src={getPosterUrl(res.posterPath, "w342")}
-              alt={res.title}
-              class="h-full w-full object-cover"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-          </div>
-
-          <!-- Metadata -->
-          <div class="flex flex-1 flex-col gap-1 sm:gap-2 min-w-0">
-            <div class="flex items-center gap-2">
-              <span class="rounded-lg bg-yellow-400/10 px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-yellow-400 ring-1 ring-yellow-400/20">
-                {res.typeLabel}
-              </span>
-              <span class="text-[9px] sm:text-[10px] font-bold text-white/30">{res.year}</span>
-            </div>
-            <h3 class="line-clamp-2 text-sm sm:text-lg font-black tracking-tight text-white group-hover:text-yellow-400 transition-colors">
-              {res.title}
-            </h3>
-            <div class="flex items-center gap-2 sm:gap-3 mt-0.5 sm:mt-1">
-              <div class="flex items-center gap-1 text-yellow-400">
-                <span class="text-[10px] sm:text-xs font-black">★</span>
-                <span class="text-[10px] sm:text-xs font-bold">{res.rating}</span>
-              </div>
-              <span class="h-1 w-1 rounded-full bg-white/10"></span>
-              <span class="text-[9px] sm:text-[11px] font-bold text-white/40 uppercase tracking-wider truncate">{res.genre}</span>
-            </div>
-          </div>
-        </a>
+          meta={res.year}
+          rating={res.rating}
+        />
       {/each}
     </div>
 

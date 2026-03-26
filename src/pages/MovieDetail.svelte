@@ -71,80 +71,87 @@
   <DetailLayout item={movie} type="movie" bind:activeTab>
     <div slot="tab-content" let:activeTab>
       {#if activeTab === "casts"}
-        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8">
           {#each cast as person}
-            <div class="group flex flex-col items-center gap-2 text-center p-3 rounded-2xl bg-white/[0.02] ring-1 ring-white/5 transition-all duration-300 hover:bg-white/[0.04] hover:ring-yellow-400/20">
+            <div class="group flex flex-col items-center gap-3 text-center p-4 rounded-3xl bg-white/[0.02] border border-white/5 transition-all duration-500 hover:bg-white/[0.05] hover:border-accent/30 hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)] hover:-translate-y-1">
               <div
-                class="h-20 w-20 overflow-hidden rounded-full ring-2 ring-white/10 transition-all duration-300 group-hover:ring-yellow-400/30"
+                class="h-24 w-24 overflow-hidden rounded-full ring-4 ring-white/5 transition-all duration-500 group-hover:ring-accent/40 shadow-xl"
               >
                 {#if person.profile_path}
                   <img
                     src={getImageUrl(person.profile_path, "w185")}
                     alt={person.name}
-                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 {:else}
-                  <div class="flex h-full w-full items-center justify-center bg-zinc-800 text-white/20">
-                    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 24 24">
+                  <div class="flex h-full w-full items-center justify-center bg-zinc-800 text-white/10">
+                    <svg class="h-10 w-10" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                   </div>
                 {/if}
               </div>
-              <div class="text-[11px] font-bold text-white/90 leading-tight">
-                {person.name}
-              </div>
-              <div class="text-[10px] text-white/40 leading-tight">
-                {person.character}
+              <div class="space-y-1">
+                <div class="text-[13px] font-bold text-white/90 leading-tight group-hover:text-accent transition-colors">
+                  {person.name}
+                </div>
+                <div class="text-[11px] font-medium text-white/30 leading-tight">
+                  {person.character}
+                </div>
               </div>
             </div>
           {/each}
         </div>
       {:else if activeTab === "reviews"}
-        <div class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {#each reviews as review}
-            <div class="space-y-3 rounded-2xl bg-white/[0.03] ring-1 ring-white/5 p-5 transition-all duration-300 hover:bg-white/[0.05] hover:ring-white/10">
+            <div class="group relative space-y-4 rounded-3xl bg-white/[0.02] border border-white/5 p-6 transition-all duration-500 hover:bg-white/[0.04] hover:border-white/10 hover:shadow-2xl">
               <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <div class="flex h-8 w-8 items-center justify-center rounded-full bg-yellow-400/10 text-yellow-400 text-xs font-bold">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-black text-sm font-black shadow-lg shadow-accent/20">
                     {review.author?.charAt(0)?.toUpperCase() || "?"}
                   </div>
-                  <div class="font-bold text-white/90 text-xs">
-                    {review.author}
+                  <div>
+                    <div class="font-bold text-white/90 text-sm">
+                      {review.author}
+                    </div>
+                    {#if review.created_at}
+                      <div class="text-[10px] text-white/30 font-bold uppercase tracking-widest">
+                        {new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                    {/if}
                   </div>
                 </div>
                 {#if review.author_details?.rating}
                   <div
-                    class="rounded-lg bg-yellow-400/10 px-2.5 py-1 text-[10px] font-bold text-yellow-400 ring-1 ring-yellow-400/20"
+                    class="rounded-xl bg-accent/10 px-3 py-1.5 text-[11px] font-black text-accent border border-accent/20"
                   >
-                    ★ {review.author_details.rating}/10
+                    ★ {review.author_details.rating}
                   </div>
                 {/if}
               </div>
-              <p class="text-[12px] text-white/60 leading-relaxed line-clamp-4">
+              <p class="text-[13px] text-white/50 leading-relaxed line-clamp-6 group-hover:text-white/70 transition-colors">
                 {review.content}
               </p>
-              {#if review.created_at}
-                <div class="text-[10px] text-white/30">
-                  {new Date(review.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                </div>
-              {/if}
             </div>
           {:else}
-            <div class="py-16 text-center">
-              <div class="text-white/20 text-4xl mb-3">💬</div>
-              <div class="text-xs text-white/40">No reviews yet</div>
+            <div class="col-span-full py-24 text-center">
+              <div class="text-white/10 text-6xl mb-4">💬</div>
+              <div class="text-sm font-bold text-white/30 uppercase tracking-[0.2em]">No reviews yet</div>
             </div>
           {/each}
         </div>
       {:else if activeTab === "related"}
-        <div class="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2">
           {#each related as item}
             <MediaCard
+              class="w-full"
               title={item.title}
               posterPath={item.poster_path}
+              backdropPath={item.backdrop_path}
               href={`/movie/${item.id}`}
               meta={item.release_date ? item.release_date.slice(0, 4) : null}
+              rating={item.vote_average}
             />
           {/each}
         </div>

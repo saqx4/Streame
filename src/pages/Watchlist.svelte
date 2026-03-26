@@ -132,9 +132,15 @@
   {/if}
 
   {#if loading}
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
-      {#each Array(18) as _}
-        <div class="aspect-[2/3] animate-pulse rounded-xl bg-white/5"></div>
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2">
+      {#each Array(12) as _}
+        <div class="space-y-4">
+          <div class="aspect-video animate-pulse rounded-2xl bg-gradient-to-br from-white/5 to-transparent ring-1 ring-white/5"></div>
+          <div class="space-y-2">
+            <div class="h-4 w-3/4 animate-pulse rounded-lg bg-white/5"></div>
+            <div class="h-3 w-1/2 animate-pulse rounded-lg bg-white/5"></div>
+          </div>
+        </div>
       {/each}
     </div>
   {:else if items.length === 0}
@@ -142,16 +148,22 @@
       Your watchlist is empty.
     </div>
   {:else}
-    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6">
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 px-2">
       {#each items as it (it.tmdb_id)}
         <div class="group relative">
-          <MediaCard title={it.title} posterPath={it.poster_path} href={hrefFor(it)} />
+          <MediaCard 
+            class="w-full"
+            title={it.title} 
+            posterPath={it.poster_path} 
+            backdropPath={(it as any).backdrop_path}
+            href={hrefFor(it)} 
+          />
           <button
-            class="absolute right-2 top-2 rounded-xl border border-white/10 bg-black/60 px-2 py-1 text-[10px] text-white/80 opacity-0 backdrop-blur transition-opacity hover:bg-black/80 group-hover:opacity-100"
+            class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-xl bg-black/60 text-white/80 opacity-0 backdrop-blur-md border border-white/10 transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100"
             on:click={() => removeItem(it.tmdb_id)}
             aria-label="Remove"
           >
-            Remove
+             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
       {/each}

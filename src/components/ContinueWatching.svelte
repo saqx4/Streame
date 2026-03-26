@@ -8,6 +8,7 @@
   } from "../services/watchHistory";
   import { isPlayerServerKey, type PlayerServerKey } from "../services/playerServers";
   import { getPosterUrl } from "../services/tmdb";
+  import MediaCard from "./MediaCard.svelte";
   import { redirectToLogin } from "../lib/loginRedirect";
   import { Play, ChevronLeft, ChevronRight, Trash2 } from "lucide-svelte";
 
@@ -206,96 +207,59 @@
     </div>
   </div>
 {:else if !loading && items.length > 0}
-  <section class="space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-bold text-white">Continue Watching</h2>
+  <section class="space-y-6 animate-in">
+    <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-3">
+        <h2 class="text-xl font-black tracking-tight text-white sm:text-2xl">Continue Watching</h2>
+        <div class="h-1.5 w-1.5 rounded-full bg-accent animate-pulse shadow-[0_0_10px_rgba(250,204,21,0.5)]"></div>
+      </div>
       <div class="flex items-center gap-2">
         <button
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95 disabled:opacity-20"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-accent hover:ring-accent hover:text-black transition-all duration-300 active:scale-95 disabled:opacity-20"
           on:click={() => scrollByAmount(-1)}
           aria-label="Scroll left"
         >
-          <ChevronLeft size={18} />
+          <ChevronLeft size={16} class="transition-transform group-hover:-translate-x-0.5" />
         </button>
         <button
-          class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 ring-1 ring-white/10 transition-all hover:bg-white/10 active:scale-95 disabled:opacity-20"
+          class="group inline-flex h-9 w-9 items-center justify-center rounded-[14px] bg-white/5 ring-1 ring-white/10 hover:bg-accent hover:ring-accent hover:text-black transition-all duration-300 active:scale-95 disabled:opacity-20"
           on:click={() => scrollByAmount(1)}
           aria-label="Scroll right"
         >
-          <ChevronRight size={18} />
+          <ChevronRight size={16} class="transition-transform group-hover:translate-x-0.5" />
         </button>
       </div>
     </div>
 
-    <div class="relative">
-      <div class="pointer-events-none absolute left-0 top-0 bottom-2 z-10 w-12 bg-gradient-to-r from-[#050505] to-transparent"></div>
-      <div class="pointer-events-none absolute right-0 top-0 bottom-2 z-10 w-12 bg-gradient-to-l from-[#050505] to-transparent"></div>
+    <div class="relative group/carousel">
+      <!-- Gradient edges -->
+      <div class="pointer-events-none absolute -left-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-r from-[#050505] to-transparent"></div>
+      <div class="pointer-events-none absolute -right-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-l from-[#050505] to-transparent"></div>
 
       <div
         bind:this={scroller}
-        class="no-scrollbar flex gap-3 overflow-x-auto pb-2 pr-2 pl-1 scroll-smooth snap-x snap-mandatory"
+        class="no-scrollbar flex gap-6 overflow-x-auto pb-8 pr-4 pl-2 pt-2 scroll-smooth"
       >
         {#each items as item (`${item.type}-${item.id}`)}
-          <div class="group relative w-[145px] shrink-0 snap-start">
-            <a
-              use:link
+          <div class="group relative shrink-0">
+            <MediaCard
+              title={item.title}
+              posterPath={item.posterPath}
+              backdropPath={(item as any).backdropPath}
               href={item.href}
-              class="block overflow-hidden rounded-2xl bg-zinc-900/50 ring-1 ring-white/5 transition-all duration-300 will-change-transform group-hover:-translate-y-1 group-hover:ring-accent/30 group-hover:shadow-2xl group-hover:shadow-accent/10 group-hover:scale-[1.04] focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label={`Continue watching ${item.title}`}
-            >
-              <div class="relative aspect-[2/3]">
-                <img
-                  src={getPosterUrl(item.posterPath, "w500")}
-                  alt={item.title}
-                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
-                />
+              meta={item.meta}
+              progress={item.progressPct}
+              remaining={item.remainingLabel}
+            />
 
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-100"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                  <div class="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-black shadow-2xl shadow-accent/40">
-                    <Play size={20} fill="currentColor" />
-                  </div>
-                </div>
-
-                <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                </div>
-
-                <div class="absolute left-0 right-0 bottom-2 px-2">
-                  <div class="line-clamp-2 text-[11px] font-semibold leading-tight text-white drop-shadow">
-                    {item.title}
-                  </div>
-                  <div class="mt-0.5 flex items-center gap-2">
-                    {#if item.meta}
-                      <div class="text-[10px] text-white/70 drop-shadow">{item.meta}</div>
-                    {/if}
-                    {#if item.remainingLabel}
-                      <div class="text-[10px] text-white/60 drop-shadow">{item.remainingLabel}</div>
-                    {/if}
-                  </div>
-                </div>
-
-                {#if typeof item.progressPct === "number"}
-                  <div class="absolute left-0 right-0 bottom-0 h-1.5 bg-black/50">
-                    <div
-                      class="h-full bg-accent"
-                      style={`width: ${item.progressPct}%;`}
-                    ></div>
-                  </div>
-                {/if}
-              </div>
-            </a>
-
+            <!-- Remove Button -->
             <button
-              class="absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white/85 opacity-0 backdrop-blur-md ring-1 ring-white/10 transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 focus:opacity-100 active:scale-90"
+              class="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-xl bg-black/60 text-white/60 opacity-0 backdrop-blur-md border border-white/10 transition-all hover:bg-red-500 hover:text-white group-hover:opacity-100 shadow-2xl active:scale-90"
               on:click={(e) => removeItem(e, item)}
               aria-label={`Remove ${item.title} from Continue Watching`}
               title="Remove from history"
             >
-              <Trash2 size={15} />
+              <Trash2 size={14} />
             </button>
           </div>
         {/each}
