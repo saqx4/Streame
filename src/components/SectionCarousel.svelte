@@ -65,9 +65,7 @@
   </div>
 
   <div class="relative group/carousel">
-    <!-- Gradient edges -->
-    <div class="pointer-events-none absolute -left-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-r from-[#050505] to-transparent"></div>
-    <div class="pointer-events-none absolute -right-1 top-0 bottom-0 z-10 w-20 bg-gradient-to-l from-[#050505] to-transparent"></div>
+    <!-- Gradient edges removed based on user feedback -->
     
     <div
       bind:this={scroller}

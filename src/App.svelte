@@ -49,8 +49,8 @@
   class="min-h-screen bg-[#050505] text-white selection:bg-accent selection:text-black"
 >
   <Sidebar />
-  <main class="px-4 pb-24 pt-4 sm:ml-[72px] sm:px-8 sm:pb-8 sm:pt-6">
-    <div class="mx-auto w-full max-w-[1500px] animate-in">
+  <main class="pb-24 pt-4 sm:ml-[72px] sm:pb-8 sm:pt-6">
+    <div class="mx-auto w-full animate-in">
       <Router {routes} on:routeLoaded={handleRouteChange} />
     </div>
   </main>

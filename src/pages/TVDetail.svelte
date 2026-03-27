@@ -169,7 +169,7 @@
                   <a
                     use:link
                     href={`/watch/tv/${tv.id}/${ep.season_number}/${ep.episode_number}`}
-                    class="group relative w-[300px] sm:w-[340px] shrink-0 block transition-transform duration-500 hover:scale-[1.02]"
+                    class="group relative w-[240px] sm:w-[280px] shrink-0 block transition-transform duration-500 hover:scale-[1.02]"
                   >
                     <!-- Episode Thumbnail Stage -->
                     <div class="relative aspect-video overflow-hidden rounded-[24px] bg-white/[0.02] border border-white/5 transition-all duration-500 group-hover:border-accent/30 group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)]">
@@ -238,9 +238,7 @@
                 {/each}
               </div>
               
-              <!-- Edge Fades -->
-              <div class="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#050505] to-transparent pointer-events-none"></div>
-              <div class="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#050505] to-transparent pointer-events-none"></div>
+              <!-- Edge Fades removed based on user feedback -->
             </div>
           {/if}
         </div>
